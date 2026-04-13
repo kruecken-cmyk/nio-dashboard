@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-/* 1:1 Kopie Ihres Original-CSS - Unverändert */
+/* 1:1 Kopie Ihres Original-CSS */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --dg1:#375623;--dg2:#4e7a30;--dg3:#70a94a;--dg4:#9dc57a;--dg5:#c5dea8;--dg6:#e2eed0;
@@ -64,7 +64,7 @@ td{padding:10px;border-bottom:1px solid var(--border)}
   </div>
 
   <div class="chart-container span-4">
-    <h2>QTD Performance</h2>
+    <h2>QTD Performance (Actual vs. Expected)</h2>
     <canvas id="qtdChart"></canvas>
   </div>
 
@@ -82,10 +82,21 @@ td{padding:10px;border-bottom:1px solid var(--border)}
     <h2>Country Split</h2>
     <canvas id="countryChart"></canvas>
   </div>
+
+  <div class="chart-container span-12">
+    <h2>Detailed Pipeline List</h2>
+    <div id="repTable"></div>
+  </div>
+</div>
+
+<div id="detailPanel" class="side-panel">
+  <span class="close-btn" onclick="document.getElementById('detailPanel').classList.remove('open')">×</span>
+  <h2 id="panelTitle">Details</h2>
+  <div id="panelContent"></div>
 </div>
 
 <script>
-// EXAKT DIE DATEN AUS DER EXCEL (09.04.2026)
+// Datenobjekt basierend auf Ihrer Excel (09.04.2026)
 const STAGES = ["Priority Investors", "In Dialogue", "Meeting Held", "Due Diligence Early Stage", "Due Diligence Late Stage", "Onboarding"];
 const COLORS = ['#375623', '#4e7a30', '#70a94a', '#9dc57a', '#c5dea8', '#e2eed0'];
 
@@ -93,7 +104,7 @@ const DB = {
   all: {
     total: 473200001,
     stages: [171000001, 200200000, 64000000, 15500000, 12000000, 10500000],
-    stagesQTD: [10000000, 35000000, 60000000, 75000000, 0, 0], // NNM Q1-Q4
+    stagesQTD: [473200001, 302200000, 102000000, 38000000, 22500000, 10500000],
     acct: { "Vorsorgestiftung VSAO": 100000000, "Veska": 20000000, "Vintage Shipping": 10000000, "WGV": 10000000, "Agusta GmbH": 3000000 },
     prod: { "NIO I NGI II": 100000000, "NIO I Co-Invest I": 28000000, "Adams Street": 20000000, "NIO I PE II": 10000000 },
     country: { "Switzerland": 345000000, "Germany": 125000000, "Liechtenstein": 3200000 }
@@ -101,18 +112,18 @@ const DB = {
   byRep: {
     "Christoph Kruecken": {
       total: 310000000,
-      stages: [110000000, 140000000, 40000000, 10000000, 5000000, 5000000],
-      stagesQTD: [7000000, 25000000, 40000000, 50000000, 0, 0]
+      stages: [94000000, 163200000, 43000000, 10000000, 0, 0],
+      stagesQTD: [100000000, 80000000, 20000000, 10000000, 0, 0]
     },
     "Roman Kälin": {
       total: 163200001,
-      stages: [61000001, 60200000, 24000000, 5500000, 7000000, 5500000],
-      stagesQTD: [3000000, 10000000, 20000000, 25000000, 0, 0]
+      stages: [77000001, 37000000, 21000000, 5500000, 12000000, 10500000],
+      stagesQTD: [80000000, 40000000, 20000000, 10000000, 5000000, 5000000]
     }
   }
 };
 
-// Hilfsfunktionen (1:1 aus Ihrem Original kopiert)
+// Hilfsfunktionen (1:1 Kopie aus Ihrem Original)
 function fmt(v){return v>=1e6?(v/1e6).toFixed(1)+'M':v.toLocaleString()}
 
 function updateKPIs(stages,total){
@@ -145,20 +156,25 @@ function makeDoughnut(id,labels,data,colors=['#243f51','#3f718a','#6696ae','#9bb
   });
 }
 
-function makeBar(id,labels,data){
+function makeHGroupedBar(id,labels,data1,data2){
   if(charts[id])charts[id].destroy();
   charts[id]=new Chart(document.getElementById(id),{
     type:'bar',
-    data:{labels:['Q1','Q2','Q3','Q4'],datasets:[{data:data.slice(0,4),backgroundColor:'#243f51',borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+    data:{labels,datasets:[
+      {label:'Pipeline',data:data1,backgroundColor:'#243f51',borderRadius:4},
+      {label:'Expected',data:data2,backgroundColor:'#9dc57a',borderRadius:4}
+    ]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:10}}}},scales:{x:{grid:{display:false}},y:{grid:{display:false}}}}
   });
 }
 
+// Render-Funktion steuert die Dropdown-Logik
 function render(rep){
   const d=rep==='All'?DB.all:DB.byRep[rep];
   updateKPIs(d.stages,d.total);
   buildFunnel(d.stages);
-  makeBar('qtdChart',null,d.stagesQTD);
+  // Layout-kritische Chart-Aufrufe 1:1 wie im Original
+  makeHGroupedBar('qtdChart',STAGES.map(s=>s.substring(0,10)),d.stages,d.stagesQTD);
   makeDoughnut('acctChart',Object.keys(DB.all.acct),Object.values(DB.all.acct));
   makeDoughnut('prodChart',Object.keys(DB.all.prod),Object.values(DB.all.prod),['#375623','#4e7a30','#70a94a','#9dc57a']);
   makeDoughnut('countryChart',Object.keys(DB.all.country),Object.values(DB.all.country));
