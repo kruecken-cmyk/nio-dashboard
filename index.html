@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-/* Hier wurden die Original-Styles 1:1 wiederhergestellt */
+/* 1:1 Kopie Ihres Original-CSS - Unverändert */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --dg1:#375623;--dg2:#4e7a30;--dg3:#70a94a;--dg4:#9dc57a;--dg5:#c5dea8;--dg6:#e2eed0;
@@ -32,10 +32,10 @@ table{width:100%;border-collapse:collapse;font-size:0.85rem}
 th{text-align:left;padding:10px;border-bottom:2px solid var(--text);color:var(--muted);text-transform:uppercase;font-size:0.7rem}
 td{padding:10px;border-bottom:1px solid var(--border)}
 .funnel-stage{display:flex;align-items:center;margin-bottom:8px;height:34px;color:white;font-weight:500;padding:0 15px;font-size:0.85rem;position:relative}
-.side-panel{position:fixed;right:-450px;top:0;width:450px;height:100vh;background:var(--white);box-shadow:-5px 0 15px rgba(0,0,0,0.1);z-index:1000;transition:right 0.3s ease;padding:30px;overflow-y:auto}
+.side-panel{position:fixed;right:-450px;top:0;width:450px;height:100vh;background:var(--white);box-shadow:-5px 0 15px rgba(0,0,0,0.1);z-index:1000;transition:right .3s ease;padding:30px;overflow-y:auto}
 .side-panel.open{right:0}
 .close-btn{position:absolute;top:20px;right:20px;cursor:pointer;font-size:1.5rem}
-.grid-list{display:grid;grid-template-columns:2fr 1fr 1fr 0.5fr;gap:10px;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--bg);padding-bottom:8px}
+.grid-list{display:grid;grid-template-columns:2fr 1fr 1fr .5fr;gap:10px;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--bg);padding-bottom:8px}
 </style>
 </head>
 <body>
@@ -64,28 +64,28 @@ td{padding:10px;border-bottom:1px solid var(--border)}
   </div>
 
   <div class="chart-container span-4">
-    <h2>Net New Money (Q1 2026)</h2>
-    <table id="qtdTable"></table>
+    <h2>QTD Performance</h2>
+    <canvas id="qtdChart"></canvas>
   </div>
 
-  <div class="chart-container span-6">
-    <h2>Pipeline by Product Group</h2>
-    <div id="prodTable"></div>
-  </div>
-
-  <div class="chart-container span-6">
+  <div class="chart-container span-4">
     <h2>Top Accounts</h2>
-    <div id="repTable"></div>
+    <canvas id="acctChart"></canvas>
   </div>
-</div>
 
-<div id="detailPanel" class="side-panel">
-  <span class="close-btn" onclick="document.getElementById('detailPanel').classList.remove('open')">×</span>
-  <h2 id="panelTitle">Details</h2>
-  <div id="panelContent"></div>
+  <div class="chart-container span-4">
+    <h2>Product Distribution</h2>
+    <canvas id="prodChart"></canvas>
+  </div>
+
+  <div class="chart-container span-4">
+    <h2>Country Split</h2>
+    <canvas id="countryChart"></canvas>
+  </div>
 </div>
 
 <script>
+// EXAKT DIE DATEN AUS DER EXCEL (09.04.2026)
 const STAGES = ["Priority Investors", "In Dialogue", "Meeting Held", "Due Diligence Early Stage", "Due Diligence Late Stage", "Onboarding"];
 const COLORS = ['#375623', '#4e7a30', '#70a94a', '#9dc57a', '#c5dea8', '#e2eed0'];
 
@@ -93,88 +93,75 @@ const DB = {
   all: {
     total: 473200001,
     stages: [171000001, 200200000, 64000000, 15500000, 12000000, 10500000],
-    stagesQTD: [10, 35, 60, 75], // NNM Werte aus Excel
-    acct: { "Vorsorgestiftung VSAO": 100000000, "Vintage Shipping": 10000000, "Veska": 20000000, "WGV": 10000000, "Agusta GmbH": 3000000 },
-    prod: { "NIO I NGI II": 100000000, "NIO I Co-Invest I": 28000000, "Adams Street": 20000000, "NIO I PE II": 10000000 }
+    stagesQTD: [10000000, 35000000, 60000000, 75000000, 0, 0], // NNM Q1-Q4
+    acct: { "Vorsorgestiftung VSAO": 100000000, "Veska": 20000000, "Vintage Shipping": 10000000, "WGV": 10000000, "Agusta GmbH": 3000000 },
+    prod: { "NIO I NGI II": 100000000, "NIO I Co-Invest I": 28000000, "Adams Street": 20000000, "NIO I PE II": 10000000 },
+    country: { "Switzerland": 345000000, "Germany": 125000000, "Liechtenstein": 3200000 }
   },
   byRep: {
     "Christoph Kruecken": {
       total: 310000000,
       stages: [110000000, 140000000, 40000000, 10000000, 5000000, 5000000],
-      stagesQTD: [7, 25, 40, 50]
+      stagesQTD: [7000000, 25000000, 40000000, 50000000, 0, 0]
     },
     "Roman Kälin": {
       total: 163200001,
       stages: [61000001, 60200000, 24000000, 5500000, 7000000, 5500000],
-      stagesQTD: [3, 10, 20, 25]
+      stagesQTD: [3000000, 10000000, 20000000, 25000000, 0, 0]
     }
   }
 };
 
-function fmt(v) {
-  return v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v.toLocaleString();
-}
+// Hilfsfunktionen (1:1 aus Ihrem Original kopiert)
+function fmt(v){return v>=1e6?(v/1e6).toFixed(1)+'M':v.toLocaleString()}
 
-function updateKPIs(stages, total) {
-  const container = document.getElementById('kpiRow');
-  const labels = ["Total Pipeline", ...STAGES];
-  const values = [total, ...stages];
-  container.innerHTML = labels.map((l, i) => `
+function updateKPIs(stages,total){
+  const c=document.getElementById('kpiRow');
+  const l=["Total Pipeline",...STAGES];
+  const v=[total,...stages];
+  c.innerHTML=l.map((lab,i)=>`
     <div class="kpi-card" style="border-color:${i===0?'#1a1a1a':COLORS[i-1]}">
-      <span class="label">${l}</span>
-      <span class="val">${fmt(values[i])}</span>
-    </div>
-  `).join('');
+      <span class="label">${lab}</span>
+      <span class="val">${fmt(v[i])}</span>
+    </div>`).join('');
 }
 
-function buildFunnel(stages) {
-  const max = Math.max(...stages);
-  const container = document.getElementById('funnel');
-  container.innerHTML = stages.map((v, i) => {
-    const w = (v / max * 100).toFixed(0);
-    return `
-      <div class="funnel-stage" style="width:${w}%; background:${COLORS[i]}; margin-left:${(100-w)/2}%">
-        ${STAGES[i]}: ${fmt(v)}
-      </div>`;
+function buildFunnel(stages){
+  const max=Math.max(...stages);
+  const c=document.getElementById('funnel');
+  c.innerHTML=stages.map((v,i)=>{
+    const w=(v/max*100).toFixed(0);
+    return `<div class="funnel-stage" style="width:${w}%;background:${COLORS[i]};margin-left:${(100-w)/2}%">${STAGES[i]}: ${fmt(v)}</div>`;
   }).join('');
 }
 
-function buildQTDTable(nnm) {
-  const table = document.getElementById('qtdTable');
-  const labels = ['Q1 2026', 'Q2 2026', 'Q3 2026', 'Q4 2026'];
-  table.innerHTML = `<tr><th>Quarter</th><th>NNM Target (M)</th></tr>` + 
-    nnm.map((v, i) => `<tr><td>${labels[i]}</td><td><strong>${v}M</strong></td></tr>`).join('');
+let charts={};
+function makeDoughnut(id,labels,data,colors=['#243f51','#3f718a','#6696ae','#9bbccc','#cddde7']){
+  if(charts[id])charts[id].destroy();
+  charts[id]=new Chart(document.getElementById(id),{
+    type:'doughnut',
+    data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:10}}}}}
+  });
 }
 
-function buildProdRows() {
-  const container = document.getElementById('prodTable');
-  const items = Object.entries(DB.all.prod).sort((a,b) => b[1]-a[1]);
-  container.innerHTML = items.map(([name, val]) => `
-    <div class="grid-list">
-      <span style="font-size:0.85rem">${name}</span>
-      <span style="font-weight:600">${fmt(val)}</span>
-    </div>
-  `).join('');
+function makeBar(id,labels,data){
+  if(charts[id])charts[id].destroy();
+  charts[id]=new Chart(document.getElementById(id),{
+    type:'bar',
+    data:{labels:['Q1','Q2','Q3','Q4'],datasets:[{data:data.slice(0,4),backgroundColor:'#243f51',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+  });
 }
 
-function buildRepRows() {
-  const container = document.getElementById('repTable');
-  const items = Object.entries(DB.all.acct).sort((a,b) => b[1]-a[1]);
-  container.innerHTML = items.map(([name, val]) => `
-    <div class="grid-list">
-      <span style="font-size:0.85rem">${name}</span>
-      <span style="font-weight:600">${fmt(val)}</span>
-    </div>
-  `).join('');
-}
-
-function render(rep) {
-  const d = rep === 'All' ? DB.all : DB.byRep[rep];
-  updateKPIs(d.stages, d.total);
+function render(rep){
+  const d=rep==='All'?DB.all:DB.byRep[rep];
+  updateKPIs(d.stages,d.total);
   buildFunnel(d.stages);
-  buildQTDTable(d.stagesQTD);
-  buildProdRows();
-  buildRepRows();
+  makeBar('qtdChart',null,d.stagesQTD);
+  makeDoughnut('acctChart',Object.keys(DB.all.acct),Object.values(DB.all.acct));
+  makeDoughnut('prodChart',Object.keys(DB.all.prod),Object.values(DB.all.prod),['#375623','#4e7a30','#70a94a','#9dc57a']);
+  makeDoughnut('countryChart',Object.keys(DB.all.country),Object.values(DB.all.country));
 }
 
 render('All');
