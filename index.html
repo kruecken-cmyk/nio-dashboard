@@ -7,7 +7,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-/* 1:1 Kopie Ihres Original-CSS */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --dg1:#375623;--dg2:#4e7a30;--dg3:#70a94a;--dg4:#9dc57a;--dg5:#c5dea8;--dg6:#e2eed0;
@@ -84,19 +83,27 @@ td{padding:10px;border-bottom:1px solid var(--border)}
   </div>
 
   <div class="chart-container span-12">
-    <h2>Detailed Pipeline List</h2>
-    <div id="repTable"></div>
+    <h2>Pipeline Inventory & QTD Breakdown</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px">
+      <div>
+        <h3 class="label" style="margin-bottom:15px">Top Accounts</h3>
+        <div id="repTable"></div>
+      </div>
+      <div>
+        <h3 class="label" style="margin-bottom:15px">QTD Coverage</h3>
+        <table id="qtdTable"></table>
+      </div>
+    </div>
   </div>
 </div>
 
 <div id="detailPanel" class="side-panel">
   <span class="close-btn" onclick="document.getElementById('detailPanel').classList.remove('open')">×</span>
-  <h2 id="panelTitle">Details</h2>
+  <h2 id="panelTitle" style="font-family:var(--fd);margin-bottom:20px">Details</h2>
   <div id="panelContent"></div>
 </div>
 
 <script>
-// Datenobjekt basierend auf Ihrer Excel (09.04.2026)
 const STAGES = ["Priority Investors", "In Dialogue", "Meeting Held", "Due Diligence Early Stage", "Due Diligence Late Stage", "Onboarding"];
 const COLORS = ['#375623', '#4e7a30', '#70a94a', '#9dc57a', '#c5dea8', '#e2eed0'];
 
@@ -113,17 +120,16 @@ const DB = {
     "Christoph Kruecken": {
       total: 310000000,
       stages: [94000000, 163200000, 43000000, 10000000, 0, 0],
-      stagesQTD: [100000000, 80000000, 20000000, 10000000, 0, 0]
+      stagesQTD: [310000000, 216000000, 53000000, 10000000, 0, 0]
     },
     "Roman Kälin": {
       total: 163200001,
       stages: [77000001, 37000000, 21000000, 5500000, 12000000, 10500000],
-      stagesQTD: [80000000, 40000000, 20000000, 10000000, 5000000, 5000000]
+      stagesQTD: [163200001, 86200000, 49000000, 28000000, 22500000, 10500000]
     }
   }
 };
 
-// Hilfsfunktionen (1:1 Kopie aus Ihrem Original)
 function fmt(v){return v>=1e6?(v/1e6).toFixed(1)+'M':v.toLocaleString()}
 
 function updateKPIs(stages,total){
@@ -168,12 +174,28 @@ function makeHGroupedBar(id,labels,data1,data2){
   });
 }
 
-// Render-Funktion steuert die Dropdown-Logik
+function buildRepRows(){
+  const c=document.getElementById('repTable');
+  const items=Object.entries(DB.all.acct).sort((a,b)=>b[1]-a[1]);
+  c.innerHTML=items.map(([name,v])=>`
+    <div class="grid-list">
+      <span style="font-size:0.85rem">${name}</span>
+      <span style="font-weight:600;text-align:right">${fmt(v)}</span>
+    </div>`).join('');
+}
+
+function buildQTDTable(stages,target){
+  const t=document.getElementById('qtdTable');
+  t.innerHTML=`<tr><th>Stage</th><th>Value</th><th>Target</th></tr>`+
+    STAGES.map((s,i)=>`<tr><td>${s}</td><td>${fmt(stages[i])}</td><td>${fmt(target[i])}</td></tr>`).join('');
+}
+
 function render(rep){
   const d=rep==='All'?DB.all:DB.byRep[rep];
   updateKPIs(d.stages,d.total);
   buildFunnel(d.stages);
-  // Layout-kritische Chart-Aufrufe 1:1 wie im Original
+  buildRepRows();
+  buildQTDTable(d.stages,d.stagesQTD);
   makeHGroupedBar('qtdChart',STAGES.map(s=>s.substring(0,10)),d.stages,d.stagesQTD);
   makeDoughnut('acctChart',Object.keys(DB.all.acct),Object.values(DB.all.acct));
   makeDoughnut('prodChart',Object.keys(DB.all.prod),Object.values(DB.all.prod),['#375623','#4e7a30','#70a94a','#9dc57a']);
