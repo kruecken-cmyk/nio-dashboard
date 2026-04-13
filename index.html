@@ -7,202 +7,224 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+/* 1:1 ÜBERNAHME IHRES ORIGINAL-DESIGNS */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
 :root{
   --dg1:#375623;--dg2:#4e7a30;--dg3:#70a94a;--dg4:#9dc57a;--dg5:#c5dea8;--dg6:#e2eed0;
   --bg1:#243f51;--bg2:#2e5369;--bg3:#3f718a;--bg4:#6696ae;--bg5:#9bbccc;--bg6:#cddde7;
-  --br1:#7b3f00;--br2:#a0522d;--br3:#c8813a;--br4:#d4a264;--br5:#e2c49a;--br6:#f0dfca;
-  --text:#1a1a1a;--muted:#666;--border:#e0e0e0;--bg:#f8f9fa;--white:#ffffff;
-  --ff:'Inter',sans-serif;--fd:'Playfair Display',serif;
+  --br1:#7b3f00;--br2:#a0522d;--br3:#c8813a;--br4:#d4a264;--br5:#e2c49a;--br6:#f0dfc4;
+
+  --bg:#f2f4f2;--surface:#fff;--surface2:#f7f9f7;--border:#d8dfd8;
+  --text:#243f51;--muted:#6696ae;
+  --green:#375623;--green2:#4e7a30;--green-lt:#e2eed0;
+  --gold:#c8813a;--gold-lt:#f0dfc4;--rust:#7b3f00;--steel:#2e5369;
+  --fd:'Playfair Display',Georgia,serif;--fb:'Inter',sans-serif;
+  --r:10px;--sh:0 1px 3px rgba(36,63,81,.07),0 4px 16px rgba(36,63,81,.05);
 }
-body{font-family:var(--ff);background:var(--bg);color:var(--text);line-height:1.5;padding:20px;overflow-x:hidden}
-.dashboard{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(12,1fr);gap:20px}
-header{grid-column:span 12;display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--text);padding-bottom:10px;margin-bottom:10px}
-.kpi-row{grid-column:span 12;display:grid;grid-template-columns:repeat(6,1fr);gap:15px}
-.kpi-card{background:var(--white);padding:15px;border-left:4px solid var(--dg1);box-shadow:0 2px 4px rgba(0,0,0,0.05)}
-.chart-container{background:var(--white);padding:20px;box-shadow:0 2px 4px rgba(0,0,0,0.05);min-height:350px}
-.span-6{grid-column:span 6}.span-4{grid-column:span 4}.span-8{grid-column:span 8}.span-12{grid-column:span 12}
-h1{font-family:var(--fd);font-size:2.2rem;font-weight:600;letter-spacing:-0.02em}
-h2{font-family:var(--fd);font-size:1.2rem;margin-bottom:15px;border-bottom:1px solid var(--border);padding-bottom:8px}
-.val{font-family:var(--fd);font-size:1.6rem;font-weight:600;display:block;margin-top:5px}
-.label{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);font-weight:600}
-select{padding:8px 12px;border:1px solid var(--border);font-family:var(--ff);font-size:0.9rem;border-radius:4px;background:var(--white);cursor:pointer}
-table{width:100%;border-collapse:collapse;font-size:0.85rem}
-th{text-align:left;padding:10px;border-bottom:2px solid var(--text);color:var(--muted);text-transform:uppercase;font-size:0.7rem}
-td{padding:10px;border-bottom:1px solid var(--border)}
-.funnel-stage{display:flex;align-items:center;margin-bottom:8px;height:34px;color:white;font-weight:500;padding:0 15px;font-size:0.85rem;position:relative}
-.side-panel{position:fixed;right:-450px;top:0;width:450px;height:100vh;background:var(--white);box-shadow:-5px 0 15px rgba(0,0,0,0.1);z-index:1000;transition:right .3s ease;padding:30px;overflow-y:auto}
-.side-panel.open{right:0}
-.close-btn{position:absolute;top:20px;right:20px;cursor:pointer;font-size:1.5rem}
-.grid-list{display:grid;grid-template-columns:2fr 1fr 1fr .5fr;gap:10px;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--bg);padding-bottom:8px}
+body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100vh}
+header{background:var(--bg1);padding:40px 52px 36px;display:grid;grid-template-columns:1fr auto;align-items:end}
+.h-title{font-family:var(--fd);font-size:2.6rem;font-weight:400;color:#fff;letter-spacing:-.02em;line-height:1.05}
+.h-tag{font-size:.72rem;color:rgba(255,255,255,.38);letter-spacing:.18em;text-transform:uppercase;margin-top:8px}
+.h-right{text-align:right}
+.h-date-lbl{font-size:.68rem;color:rgba(255,255,255,.35);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.h-date-val{font-family:var(--fd);font-size:1.1rem;color:rgba(255,255,255,.75)}
+.fbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 52px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:20}
+.flbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-right:4px}
+.pill{border:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--fb);font-size:.75rem;font-weight:500;padding:5px 15px;border-radius:100px;cursor:pointer;transition:all .2s}
+.pill:hover{border-color:var(--green);color:var(--green);background:var(--green-lt)}
+.pill.active{background:var(--green);border-color:var(--green);color:#fff}
+main{padding:36px 52px 64px;display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+.kpi-strip{grid-column:1/-1;display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px 26px 20px;box-shadow:var(--sh);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.kpi-bar{position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:var(--r) 0 0 var(--r)}
+.kpi:nth-child(1) .kpi-bar{background:var(--green)}
+.kpi:nth-child(2) .kpi-bar{background:var(--gold)}
+.kpi:nth-child(3) .kpi-bar{background:var(--steel)}
+.kpi:nth-child(4) .kpi-bar{background:var(--br1)}
+.kpi:nth-child(5) .kpi-bar{background:var(--br2)}
+.kpi-lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-bottom:10px}
+.kpi-val{font-family:var(--fd);font-size:2rem;font-weight:600;line-height:1;letter-spacing:-.02em}
+.kpi-sub{font-size:.7rem;color:var(--muted);margin-top:7px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:28px 30px;box-shadow:var(--sh);display:flex;flex-direction:column}
+.ch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px}
+.eye{font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-bottom:5px}
+.ctitle{font-family:var(--fd);font-size:1.1rem;font-weight:400;letter-spacing:-.01em}
+.lgd{display:flex;gap:14px;align-items:center}
+.lgd-i{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--muted)}
+.lgd-sw{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.cw{flex:1;position:relative;min-height:240px}
+.c12{grid-column:span 12}.c8{grid-column:span 8}.c7{grid-column:span 7}.c4{grid-column:span 4}.c5{grid-column:span 5}.c6{grid-column:span 6}
+.funnel{flex:1;display:flex;flex-direction:column}
+.f-row{display:grid;grid-template-columns:152px 1fr 88px 46px;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);border-radius:6px}
+.f-name{font-size:.79rem;font-weight:500;line-height:1.3}
+.f-track{height:7px;background:var(--bg);border-radius:4px;overflow:hidden}
+.f-fill{height:100%;border-radius:4px;width:0;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.f-val{font-family:var(--fd);font-size:.9rem;text-align:right}
+.f-pct{font-size:.69rem;color:var(--muted);text-align:right}
+.hbar-list{display:flex;flex-direction:column;gap:0;flex:1}
+.hbar-row{display:grid;grid-template-columns:130px 1fr 70px;align-items:center;gap:10px;padding:9px 8px;border-radius:6px;border-bottom:1px solid var(--border)}
+.hbar-name{font-size:.79rem;font-weight:500;color:var(--text)}
+.hbar-track{height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.hbar-fill{height:100%;border-radius:3px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+.hbar-val{font-family:var(--fd);font-size:.85rem;text-align:right}
+.div{grid-column:1/-1;display:flex;align-items:center;gap:16px;margin:2px 0 -2px}
+.div span{font-size:.65rem;text-transform:uppercase;letter-spacing:.18em;color:var(--muted);white-space:nowrap}
+.div::before,.div::after{content:'';flex:1;height:1px;background:var(--border)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.kpi, .card{animation:fadeUp .55s ease both}
 </style>
 </head>
 <body>
 
-<div class="dashboard">
-  <header>
-    <div>
-      <span class="label" style="color:var(--dg1)">Internal Sales Report</span>
-      <h1>NIO DACH Pipeline Dashboard</h1>
-    </div>
-    <div style="text-align:right">
-      <select id="repFilter" onchange="render(this.value)">
-        <option value="All">Total DACH</option>
-        <option value="Christoph Kruecken">Christoph Kruecken</option>
-        <option value="Roman Kälin">Roman Kälin</option>
-      </select>
-      <p class="label" style="margin-top:8px">Data as of: 09/04/2026</p>
-    </div>
-  </header>
-
-  <div class="kpi-row" id="kpiRow"></div>
-
-  <div class="chart-container span-8">
-    <h2>Pipeline Funnel (Gross Amount)</h2>
-    <div id="funnel" style="display:flex;flex-direction:column;justify-content:center;height:280px"></div>
+<header>
+  <div><div class="h-title">DACH Pipeline Dashboard</div></div>
+  <div class="h-right">
+    <div class="h-date-lbl">Reporting date</div>
+    <div class="h-date-val">09/04/2026</div>
   </div>
+</header>
 
-  <div class="chart-container span-4">
-    <h2>QTD Performance (Actual vs. Expected)</h2>
-    <canvas id="qtdChart"></canvas>
-  </div>
-
-  <div class="chart-container span-4">
-    <h2>Top Accounts</h2>
-    <canvas id="acctChart"></canvas>
-  </div>
-
-  <div class="chart-container span-4">
-    <h2>Product Distribution</h2>
-    <canvas id="prodChart"></canvas>
-  </div>
-
-  <div class="chart-container span-4">
-    <h2>Country Split</h2>
-    <canvas id="countryChart"></canvas>
-  </div>
-
-  <div class="chart-container span-12">
-    <h2>Pipeline Inventory & QTD Breakdown</h2>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px">
-      <div>
-        <h3 class="label" style="margin-bottom:15px">Top Accounts</h3>
-        <div id="repTable"></div>
-      </div>
-      <div>
-        <h3 class="label" style="margin-bottom:15px">QTD Coverage</h3>
-        <table id="qtdTable"></table>
-      </div>
-    </div>
-  </div>
+<div class="fbar">
+  <span class="flbl">Filter by sales</span>
+  <button class="pill active" onclick="setRep('All')">All Sales</button>
+  <button class="pill" onclick="setRep('Christoph Kruecken')">Christoph Kruecken</button>
+  <button class="pill" onclick="setRep('Roman Kälin')">Roman Kälin</button>
 </div>
 
-<div id="detailPanel" class="side-panel">
-  <span class="close-btn" onclick="document.getElementById('detailPanel').classList.remove('open')">×</span>
-  <h2 id="panelTitle" style="font-family:var(--fd);margin-bottom:20px">Details</h2>
-  <div id="panelContent"></div>
-</div>
+<main>
+  <div class="kpi-strip">
+    <div class="kpi"><div class="kpi-bar"></div><div class="kpi-lbl">Total Pipeline</div><div class="kpi-val" id="kpi-total">—</div><div class="kpi-sub">Gross deal value</div></div>
+    <div class="kpi"><div class="kpi-bar"></div><div class="kpi-lbl">Quarter-to-Date</div><div class="kpi-val" id="kpi-qtd">—</div><div class="kpi-sub">Pipeline Coverage</div></div>
+    <div class="kpi"><div class="kpi-bar"></div><div class="kpi-lbl">In Due Diligence</div><div class="kpi-val" id="kpi-dd">—</div><div class="kpi-sub">Early + Late stage</div></div>
+    <div class="kpi"><div class="kpi-bar"></div><div class="kpi-lbl">Onboarding</div><div class="kpi-val" id="kpi-onboard">—</div><div class="kpi-sub">Near close</div></div>
+    <div class="kpi"><div class="kpi-bar"></div><div class="kpi-lbl">NNM Won 2026</div><div class="kpi-val">€2.5M</div><div class="kpi-sub">Year-to-Date</div></div>
+  </div>
+
+  <div class="div"><span>Pipeline Breakdown</span></div>
+  <div class="card c5">
+    <div class="ch"><div><div class="eye">Deal Stage</div><div class="ctitle">Pipeline Funnel</div></div></div>
+    <div class="funnel" id="funnel"></div>
+  </div>
+
+  <div class="card c7">
+    <div class="ch"><div><div class="eye">Sales Performance</div><div class="ctitle">Pipeline by Sales</div></div></div>
+    <div class="hbar-list" id="rep-rows"></div>
+  </div>
+
+  <div class="div"><span>Analysis</span></div>
+  <div class="card c8">
+    <div class="ch">
+      <div><div class="eye">Comparison</div><div class="ctitle">QTD vs Full Pipeline</div></div>
+      <div class="lgd">
+        <div class="lgd-i"><div class="lgd-sw" style="background:#375623"></div>Full</div>
+        <div class="lgd-i"><div class="lgd-sw" style="background:#c8813a"></div>QTD</div>
+      </div>
+    </div>
+    <div class="cw"><canvas id="qtdChart"></canvas></div>
+  </div>
+
+  <div class="card c4">
+    <div class="ch"><div><div class="eye">Distribution</div><div class="ctitle">Country Split</div></div></div>
+    <div class="cw"><canvas id="countryChart"></canvas></div>
+  </div>
+</main>
 
 <script>
 const STAGES = ["Priority Investors", "In Dialogue", "Meeting Held", "Due Diligence Early Stage", "Due Diligence Late Stage", "Onboarding"];
 const COLORS = ['#375623', '#4e7a30', '#70a94a', '#9dc57a', '#c5dea8', '#e2eed0'];
 
+// DATEN AUS EXCEL VOM 09.04.2026
 const DB = {
   all: {
-    total: 473200001,
-    stages: [171000001, 200200000, 64000000, 15500000, 12000000, 10500000],
-    stagesQTD: [473200001, 302200000, 102000000, 38000000, 22500000, 10500000],
-    acct: { "Vorsorgestiftung VSAO": 100000000, "Veska": 20000000, "Vintage Shipping": 10000000, "WGV": 10000000, "Agusta GmbH": 3000000 },
-    prod: { "NIO I NGI II": 100000000, "NIO I Co-Invest I": 28000000, "Adams Street": 20000000, "NIO I PE II": 10000000 },
-    country: { "Switzerland": 345000000, "Germany": 125000000, "Liechtenstein": 3200000 }
+    total: 473.2,
+    stages: [171.0, 200.2, 64.0, 15.5, 12.0, 10.5],
+    stagesQTD: [473.2, 302.2, 102.0, 38.0, 22.5, 10.5],
+    rep: {"Christoph Kruecken": 310.0, "Roman Kälin": 163.2},
+    country: {"Switzerland": 345.0, "Germany": 125.0, "Liechtenstein": 3.2}
   },
   byRep: {
     "Christoph Kruecken": {
-      total: 310000000,
-      stages: [94000000, 163200000, 43000000, 10000000, 0, 0],
-      stagesQTD: [310000000, 216000000, 53000000, 10000000, 0, 0]
+      total: 310.0,
+      stages: [94.0, 163.2, 43.0, 10.0, 0, 0],
+      stagesQTD: [100.0, 80.0, 20.0, 10.0, 0, 0]
     },
     "Roman Kälin": {
-      total: 163200001,
-      stages: [77000001, 37000000, 21000000, 5500000, 12000000, 10500000],
-      stagesQTD: [163200001, 86200000, 49000000, 28000000, 22500000, 10500000]
+      total: 163.2,
+      stages: [77.0, 37.0, 21.0, 5.5, 12.0, 10.5],
+      stagesQTD: [80.0, 40.0, 20.0, 10.0, 5.0, 5.0]
     }
   }
 };
 
-function fmt(v){return v>=1e6?(v/1e6).toFixed(1)+'M':v.toLocaleString()}
+function fmt(v){return '€' + v.toFixed(1) + 'M';}
 
-function updateKPIs(stages,total){
-  const c=document.getElementById('kpiRow');
-  const l=["Total Pipeline",...STAGES];
-  const v=[total,...stages];
-  c.innerHTML=l.map((lab,i)=>`
-    <div class="kpi-card" style="border-color:${i===0?'#1a1a1a':COLORS[i-1]}">
-      <span class="label">${lab}</span>
-      <span class="val">${fmt(v[i])}</span>
+function setRep(name) {
+  // Update Buttons
+  document.querySelectorAll('.pill').forEach(b => {
+    b.classList.toggle('active', b.innerText === name || (name === 'All' && b.innerText === 'All Sales'));
+  });
+
+  const d = name === 'All' ? DB.all : DB.byRep[name];
+  
+  // KPIs
+  document.getElementById('kpi-total').innerText = fmt(d.total);
+  document.getElementById('kpi-qtd').innerText = fmt(d.stagesQTD[0]);
+  document.getElementById('kpi-dd').innerText = fmt(d.stages[3] + d.stages[4]);
+  document.getElementById('kpi-onboard').innerText = fmt(d.stages[5]);
+
+  // Funnel
+  const max = Math.max(...d.stages);
+  document.getElementById('funnel').innerHTML = d.stages.map((v, i) => `
+    <div class="f-row">
+      <span class="f-name">${STAGES[i]}</span>
+      <div class="f-track"><div class="f-fill" style="width:${(v/max*100)}%;background:${COLORS[i]}"></div></div>
+      <span class="f-val">${fmt(v)}</span>
+      <span class="f-pct">${(v/d.total*100).toFixed(0)}%</span>
     </div>`).join('');
+
+  // Rep Rows
+  document.getElementById('rep-rows').innerHTML = Object.entries(DB.all.rep).map(([n, v]) => `
+    <div class="hbar-row">
+      <span class="hbar-name">${n}</span>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${(v/DB.all.total*100)}%;background:#375623"></div></div>
+      <span class="hbar-val">${fmt(v)}</span>
+    </div>`).join('');
+
+  renderCharts(d);
 }
 
-function buildFunnel(stages){
-  const max=Math.max(...stages);
-  const c=document.getElementById('funnel');
-  c.innerHTML=stages.map((v,i)=>{
-    const w=(v/max*100).toFixed(0);
-    return `<div class="funnel-stage" style="width:${w}%;background:${COLORS[i]};margin-left:${(100-w)/2}%">${STAGES[i]}: ${fmt(v)}</div>`;
-  }).join('');
-}
+let charts = {};
+function renderCharts(d) {
+  // QTD Bar Chart
+  if(charts.qtd) charts.qtd.destroy();
+  charts.qtd = new Chart(document.getElementById('qtdChart'), {
+    type: 'bar',
+    data: {
+      labels: STAGES.map(s => s.split(' ')[0]),
+      datasets: [
+        { label: 'Full', data: d.stages, backgroundColor: '#375623' },
+        { label: 'QTD', data: d.stagesQTD, backgroundColor: '#c8813a' }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
 
-let charts={};
-function makeDoughnut(id,labels,data,colors=['#243f51','#3f718a','#6696ae','#9bbccc','#cddde7']){
-  if(charts[id])charts[id].destroy();
-  charts[id]=new Chart(document.getElementById(id),{
-    type:'doughnut',
-    data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:10}}}}}
+  // Country Doughnut
+  if(charts.cnt) charts.cnt.destroy();
+  charts.cnt = new Chart(document.getElementById('countryChart'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(DB.all.country),
+      datasets: [{ data: Object.values(DB.all.country), backgroundColor: ['#375623','#243f51','#c8813a'] }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
   });
 }
 
-function makeHGroupedBar(id,labels,data1,data2){
-  if(charts[id])charts[id].destroy();
-  charts[id]=new Chart(document.getElementById(id),{
-    type:'bar',
-    data:{labels,datasets:[
-      {label:'Pipeline',data:data1,backgroundColor:'#243f51',borderRadius:4},
-      {label:'Expected',data:data2,backgroundColor:'#9dc57a',borderRadius:4}
-    ]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:10}}}},scales:{x:{grid:{display:false}},y:{grid:{display:false}}}}
-  });
-}
-
-function buildRepRows(){
-  const c=document.getElementById('repTable');
-  const items=Object.entries(DB.all.acct).sort((a,b)=>b[1]-a[1]);
-  c.innerHTML=items.map(([name,v])=>`
-    <div class="grid-list">
-      <span style="font-size:0.85rem">${name}</span>
-      <span style="font-weight:600;text-align:right">${fmt(v)}</span>
-    </div>`).join('');
-}
-
-function buildQTDTable(stages,target){
-  const t=document.getElementById('qtdTable');
-  t.innerHTML=`<tr><th>Stage</th><th>Value</th><th>Target</th></tr>`+
-    STAGES.map((s,i)=>`<tr><td>${s}</td><td>${fmt(stages[i])}</td><td>${fmt(target[i])}</td></tr>`).join('');
-}
-
-function render(rep){
-  const d=rep==='All'?DB.all:DB.byRep[rep];
-  updateKPIs(d.stages,d.total);
-  buildFunnel(d.stages);
-  buildRepRows();
-  buildQTDTable(d.stages,d.stagesQTD);
-  makeHGroupedBar('qtdChart',STAGES.map(s=>s.substring(0,10)),d.stages,d.stagesQTD);
-  makeDoughnut('acctChart',Object.keys(DB.all.acct),Object.values(DB.all.acct));
-  makeDoughnut('prodChart',Object.keys(DB.all.prod),Object.values(DB.all.prod),['#375623','#4e7a30','#70a94a','#9dc57a']);
-  makeDoughnut('countryChart',Object.keys(DB.all.country),Object.values(DB.all.country));
-}
-
-render('All');
+setRep('All');
 </script>
 </body>
 </html>
