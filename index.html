@@ -7,714 +7,169 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+/* Layout unverändert beibehalten */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-
 :root{
-  /* Dark Green Accent 1 */
   --dg1:#375623;--dg2:#4e7a30;--dg3:#70a94a;--dg4:#9dc57a;--dg5:#c5dea8;--dg6:#e2eed0;
-  /* Blue-Grey Text 1 */
   --bg1:#243f51;--bg2:#2e5369;--bg3:#3f718a;--bg4:#6696ae;--bg5:#9bbccc;--bg6:#cddde7;
-  /* Brown Accent 2 */
-  --br1:#7b3f00;--br2:#a0522d;--br3:#c8813a;--br4:#d4a264;--br5:#e2c49a;--br6:#f0dfc4;
-
-  --bg:#f2f4f2;--surface:#fff;--surface2:#f7f9f7;--border:#d8dfd8;
-  --text:#243f51;--muted:#6696ae;
-  --green:#375623;--green2:#4e7a30;--green-lt:#e2eed0;
-  --gold:#c8813a;--gold-lt:#f0dfc4;--rust:#7b3f00;--steel:#2e5369;
-  --fd:'Playfair Display',Georgia,serif;--fb:'Inter',sans-serif;
-  --r:10px;--sh:0 1px 3px rgba(36,63,81,.07),0 4px 16px rgba(36,63,81,.05);
+  --br1:#7b3f00;--br2:#a0522d;--br3:#c8813a;--br4:#d4a264;--br5:#e2c49a;--br6:#f0dfca;
+  --text:#1a1a1a;--muted:#666;--border:#e0e0e0;--bg:#f8f9fa;--white:#ffffff;
+  --ff:'Inter',sans-serif;--fd:'Playfair Display',serif;
 }
-body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100vh}
-header{background:var(--bg1);padding:40px 52px 36px;display:grid;grid-template-columns:1fr auto;align-items:end}
-.h-title{font-family:var(--fd);font-size:2.6rem;font-weight:400;color:#fff;letter-spacing:-.02em;line-height:1.05}
-.h-tag{font-size:.72rem;color:rgba(255,255,255,.38);letter-spacing:.18em;text-transform:uppercase;margin-top:8px}
-.h-right{text-align:right}
-.h-date-lbl{font-size:.68rem;color:rgba(255,255,255,.35);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
-.h-date-val{font-family:var(--fd);font-size:1.1rem;color:rgba(255,255,255,.75)}
-.fbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 52px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:20}
-.flbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-right:4px}
-.pill{border:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--fb);font-size:.75rem;font-weight:500;padding:5px 15px;border-radius:100px;cursor:pointer;transition:all .2s}
-.pill:hover{border-color:var(--green);color:var(--green);background:var(--green-lt)}
-.pill.active{background:var(--green);border-color:var(--green);color:#fff}
-main{padding:36px 52px 64px;display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
-.kpi-strip{grid-column:1/-1;display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
-.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px 26px 20px;box-shadow:var(--sh);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
-.kpi:hover{transform:translateY(-2px);box-shadow:0 4px 24px rgba(0,0,0,.08)}
-.kpi-bar{position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:var(--r) 0 0 var(--r)}
-.kpi:nth-child(1) .kpi-bar{background:var(--green)}
-.kpi:nth-child(2) .kpi-bar{background:var(--gold)}
-.kpi:nth-child(3) .kpi-bar{background:var(--steel)}
-.kpi:nth-child(4) .kpi-bar{background:var(--br1)}
-.kpi:nth-child(5) .kpi-bar{background:var(--br2)}
-.kpi-lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-bottom:10px}
-.kpi-val{font-family:var(--fd);font-size:2rem;font-weight:600;line-height:1;letter-spacing:-.02em}
-.kpi-sub{font-size:.7rem;color:var(--muted);margin-top:7px}
-.badge{display:inline-block;font-size:.6rem;font-weight:600;padding:2px 6px;border-radius:4px;background:var(--gold-lt);color:var(--gold);margin-left:5px;vertical-align:middle}
-.nnm-bar-wrap{margin-top:10px}
-.nnm-track{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-top:6px}
-.nnm-fill{height:100%;border-radius:3px;background:var(--gold);width:0;transition:width 1s cubic-bezier(.4,0,.2,1)}
-.nnm-labels{display:flex;justify-content:space-between;font-size:.62rem;color:var(--muted);margin-top:4px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:28px 30px;box-shadow:var(--sh);display:flex;flex-direction:column}
-.ch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px}
-.eye{font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-bottom:5px}
-.ctitle{font-family:var(--fd);font-size:1.1rem;font-weight:400;letter-spacing:-.01em}
-.lgd{display:flex;gap:14px;align-items:center}
-.lgd-i{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--muted)}
-.lgd-sw{width:10px;height:10px;border-radius:2px;flex-shrink:0}
-.cw{flex:1;position:relative;min-height:240px}
-.cw-sm{flex:1;position:relative;min-height:210px}
-.c12{grid-column:span 12}.c8{grid-column:span 8}.c7{grid-column:span 7}
-.c6{grid-column:span 6}.c5{grid-column:span 5}.c4{grid-column:span 4}
-.funnel{flex:1;display:flex;flex-direction:column}
-.f-row{display:grid;grid-template-columns:152px 1fr 88px 46px;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);border-radius:6px;transition:background .15s}
-.f-clickable{cursor:pointer;padding-left:6px;padding-right:6px}
-.f-clickable:hover{background:var(--green-lt)}
-.f-row:last-child{border-bottom:none}
-.f-name{font-size:.79rem;font-weight:500;line-height:1.3}
-.f-track{height:7px;background:var(--bg);border-radius:4px;overflow:hidden}
-.f-fill{height:100%;border-radius:4px;width:0;transition:width 1s cubic-bezier(.4,0,.2,1)}
-.f-val{font-family:var(--fd);font-size:.9rem;text-align:right}
-.f-pct{font-size:.69rem;color:var(--muted);text-align:right}
-.qtd-wrap{flex:1;display:flex;flex-direction:column}
-.qtd-hd{display:grid;grid-template-columns:1fr 78px 78px 58px;gap:6px;padding-bottom:10px;border-bottom:2px solid var(--border);margin-bottom:2px}
-.qtd-hd span{font-size:.63rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:600}
-.qtd-hd span:not(:first-child){text-align:right}
-.q-row{display:grid;grid-template-columns:1fr 78px 78px 58px;gap:6px;padding:9px 0;border-bottom:1px solid var(--border);align-items:center}
-.q-row:last-child{border-bottom:none}
-.q-name{font-size:.79rem;font-weight:500}
-.q-full{font-size:.79rem;text-align:right;color:var(--muted)}
-.q-qtd{font-size:.79rem;text-align:right;color:var(--steel);font-weight:600}
-.q-cov{font-size:.73rem;text-align:right;font-weight:600}
-.hi{color:var(--green2)}.lo{color:var(--rust)}.na{color:var(--muted)}
-.heatmap{flex:1;overflow-x:auto}
-.hm-table{width:100%;border-collapse:collapse;font-size:.72rem}
-.hm-table th{font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 8px;text-align:center;white-space:nowrap;border-bottom:2px solid var(--border)}
-.hm-table th:first-child{text-align:left}
-.hm-table td{padding:7px 8px;text-align:center;border-bottom:1px solid var(--border)}
-.hm-table td:first-child{font-weight:500;text-align:left;white-space:nowrap}
-.hm-cell{display:inline-flex;align-items:center;justify-content:center;width:100%;height:26px;border-radius:5px;font-size:.72rem;font-weight:500;transition:transform .15s;cursor:default}
-.hm-cell:hover{transform:scale(1.1)}
-.hm-empty{color:var(--border)}
-.nnm-section{grid-column:span 12;display:grid;grid-template-columns:2fr 1fr;gap:18px}
-.deal-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.deal-filter{border:1px solid var(--border);background:var(--bg);color:var(--muted);font-family:var(--fb);font-size:.72rem;padding:5px 12px;border-radius:6px;cursor:pointer;transition:all .15s}
-.deal-filter.active{background:var(--dg1);border-color:var(--dg1);color:#fff}
-.deal-search{border:1px solid var(--border);background:var(--surface);font-family:var(--fb);font-size:.75rem;padding:6px 12px;border-radius:6px;outline:none;flex:1;min-width:160px;color:var(--text)}
-.deal-search:focus{border-color:var(--green)}
-.deal-table-wrap{overflow-x:auto}
-table.dt{width:100%;border-collapse:collapse;font-size:.78rem}
-table.dt th{font-size:.63rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:8px 12px;text-align:left;border-bottom:2px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
-table.dt th:hover{color:var(--text)}
-table.dt th.asc::after{content:' ↑'}
-table.dt th.desc::after{content:' ↓'}
-table.dt td{padding:9px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
-table.dt tr:last-child td{border-bottom:none}
-table.dt tr:hover td{background:var(--surface2)}
-.dt-val{font-family:var(--fd);font-weight:600;text-align:right}
-.stage-chip{display:inline-block;font-size:.65rem;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap}
-.dt-footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:.72rem;color:var(--muted)}
-.dt-pages{display:flex;gap:4px;flex-wrap:wrap}
-.pg-btn{border:1px solid var(--border);background:transparent;font-family:var(--fb);font-size:.72rem;padding:3px 9px;border-radius:4px;cursor:pointer;color:var(--muted)}
-.pg-btn:hover{border-color:var(--green);color:var(--green)}
-.pg-btn.active{background:var(--dg1);border-color:var(--dg1);color:#fff}
-.div{grid-column:1/-1;display:flex;align-items:center;gap:16px;margin:2px 0 -2px}
-.div span{font-size:.65rem;text-transform:uppercase;letter-spacing:.18em;color:var(--muted);white-space:nowrap}
-.div::before,.div::after{content:'';flex:1;height:1px;background:var(--border)}
-
-/* ── HTML bar rows (replaces Chart.js for rep + product cards) ── */
-.hbar-list{display:flex;flex-direction:column;gap:0;flex:1}
-.hbar-row{display:grid;grid-template-columns:130px 1fr 70px;align-items:center;gap:10px;padding:9px 8px;border-radius:6px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s}
-.hbar-row:last-child{border-bottom:none}
-.hbar-row:hover,.hbar-row.active{background:var(--green-lt)}
-.hbar-row.active .hbar-name{color:var(--green);font-weight:600}
-.hbar-name{font-size:.79rem;font-weight:500;color:var(--text);line-height:1.3}
-.hbar-tracks{display:flex;flex-direction:column;gap:3px}
-.hbar-track{height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
-.hbar-fill{height:100%;border-radius:3px;transition:width .7s cubic-bezier(.4,0,.2,1)}
-.hbar-val{font-family:var(--fd);font-size:.85rem;text-align:right;color:var(--text)}
-.hbar-qtd{font-size:.68rem;color:var(--muted);text-align:right}
-/* drill panel */
-.drill-panel{margin-top:0;overflow:hidden;max-height:0;transition:max-height .35s ease}
-.drill-panel.open{max-height:600px}
-.drill-inner{padding:12px 8px 4px;border-top:2px solid var(--border);margin-top:0}
-.drill-hd{display:grid;grid-template-columns:1fr 60px 60px 60px;gap:6px;padding-bottom:8px;border-bottom:2px solid var(--border);margin-bottom:2px}
-.drill-hd span{font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600}
-.drill-hd span:not(:first-child){text-align:right}
-.drill-row{display:grid;grid-template-columns:1fr 60px 60px 60px;gap:6px;padding:6px 0;border-bottom:1px solid var(--border);align-items:center}
-.drill-row:last-child{border-bottom:none}
-.drill-name{font-size:.72rem;font-weight:500}
-.drill-full{font-size:.72rem;text-align:right;color:var(--muted)}
-.drill-qtd{font-size:.72rem;text-align:right;color:var(--dg1);font-weight:600}
-.drill-gap{font-size:.72rem;text-align:right;font-weight:600}
-.drill-lbl{font-size:.63rem;color:var(--muted);margin-bottom:8px}
-
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-.kpi{animation:fadeUp .55s ease both}
-.kpi:nth-child(1){animation-delay:.04s}.kpi:nth-child(2){animation-delay:.09s}
-.kpi:nth-child(3){animation-delay:.14s}.kpi:nth-child(4){animation-delay:.19s}
-.kpi:nth-child(5){animation-delay:.24s}
-.card{animation:fadeUp .55s ease both}
-@media(max-width:960px){
-  header{padding:24px;flex-direction:column;gap:8px}
-  .fbar{padding:12px 20px}
-  main{padding:18px 20px 48px;gap:14px}
-  .c7,.c5,.c6,.c8,.c4{grid-column:span 12}
-  .kpi-strip{grid-template-columns:repeat(2,1fr)}
-  .prod-section,.nnm-section{grid-template-columns:1fr}
-}
+body{font-family:var(--ff);background:var(--bg);color:var(--text);line-height:1.5;padding:20px}
+.dashboard{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(12,1fr);gap:20px}
+header{grid-column:span 12;display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--text);padding-bottom:10px;margin-bottom:10px}
+.kpi-row{grid-column:span 12;display:grid;grid-template-columns:repeat(6,1fr);gap:15px}
+.kpi-card{background:var(--white);padding:15px;border-left:4px solid var(--dg1);box-shadow:0 2px 4px rgba(0,0,0,0.05)}
+.chart-container{background:var(--white);padding:20px;box-shadow:0 2px 4px rgba(0,0,0,0.05);min-height:350px}
+.span-6{grid-column:span 6}.span-4{grid-column:span 4}.span-8{grid-column:span 8}
+h1{font-family:var(--fd);font-size:2.2rem;font-weight:600;letter-spacing:-0.02em}
+h2{font-family:var(--fd);font-size:1.2rem;margin-bottom:15px;border-bottom:1px solid var(--border);padding-bottom:8px}
+.val{font-family:var(--fd);font-size:1.6rem;font-weight:600;display:block;margin-top:5px}
+.label{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);font-weight:600}
+select{padding:8px 12px;border:1px solid var(--border);font-family:var(--ff);font-size:0.9rem;border-radius:4px;background:var(--white);cursor:pointer}
+table{width:100%;border-collapse:collapse;font-size:0.85rem}
+th{text-align:left;padding:10px;border-bottom:2px solid var(--text);color:var(--muted);text-transform:uppercase;font-size:0.7rem}
+td{padding:10px;border-bottom:1px solid var(--border)}
+.funnel-stage{display:flex;align-items:center;margin-bottom:8px;height:34px;color:white;font-weight:500;padding:0 15px;font-size:0.85rem;position:relative}
 </style>
 </head>
 <body>
 
-<header>
-  <div>
-    <div class="h-title">DACH Pipeline Dashboard</div>
-  </div>
-  <div class="h-right">
-    <div class="h-date-lbl">Reporting date</div>
-    <div class="h-date-val" id="datestamp"></div>
-  </div>
-</header>
+<div class="dashboard">
+  <header>
+    <div>
+      <span class="label" style="color:var(--dg1)">Internal Sales Report</span>
+      <h1>NIO DACH Pipeline Dashboard</h1>
+    </div>
+    <div style="text-align:right">
+      <select id="repFilter" onchange="render(this.value)">
+        <option value="All">Total DACH</option>
+        <option value="Christoph Kruecken">Christoph Kruecken</option>
+        <option value="Roman Kälin">Roman Kälin</option>
+      </select>
+      <p class="label" style="margin-top:8px">Data as of: 09/04/2026</p>
+    </div>
+  </header>
 
-<div class="fbar">
-  <span class="flbl">Filter by sales</span>
-  <button class="pill active" onclick="setRep('All')">All Sales</button>
-  <button class="pill" onclick="setRep('Christoph Kruecken')">Christoph Kruecken</button>
-  <button class="pill" onclick="setRep('Roman Kälin')">Roman Kälin</button>
-  <button class="pill" onclick="setRep('Guido')">Guido</button>
-  <button class="pill" onclick="setRep('Marc Dellmann')">Marc Dellmann</button>
+  <div class="kpi-row" id="kpiRow">
+    </div>
+
+  <div class="chart-container span-8">
+    <h2>Pipeline Funnel (Gross Amount)</h2>
+    <div id="funnel" style="display:flex;flex-direction:column;justify-content:center;height:280px"></div>
+  </div>
+
+  <div class="chart-container span-4">
+    <h2>Net New Money (Q1 2026)</h2>
+    <canvas id="qtdChart"></canvas>
+  </div>
+
+  <div class="chart-container span-4">
+    <h2>Top Accounts</h2>
+    <canvas id="acctChart"></canvas>
+  </div>
+
+  <div class="chart-container span-4">
+    <h2>Product Distribution</h2>
+    <canvas id="prodChart"></canvas>
+  </div>
+
+  <div class="chart-container span-4">
+    <h2>Country Split</h2>
+    <canvas id="countryChart"></canvas>
+  </div>
 </div>
 
-<main>
-  <div class="kpi-strip">
-    <div class="kpi"><div class="kpi-bar"></div><div class="kpi-lbl">Total Pipeline</div><div class="kpi-val" id="kpi-total">—</div><div class="kpi-sub">Gross deal value · all stages</div></div>
-    <div class="kpi"><div class="kpi-bar"></div><div class="kpi-lbl">Quarter-to-Date</div><div class="kpi-val" id="kpi-qtd">—</div><div class="kpi-sub">QTD pipeline <span class="badge">QTD</span></div></div>
-    <div class="kpi"><div class="kpi-bar"></div><div class="kpi-lbl">In Due Diligence</div><div class="kpi-val" id="kpi-dd">—</div><div class="kpi-sub">Early + Late stage combined</div></div>
-    <div class="kpi"><div class="kpi-bar"></div><div class="kpi-lbl">Onboarding</div><div class="kpi-val" id="kpi-onboard">—</div><div class="kpi-sub">Near close</div></div>
-    <div class="kpi" id="kpi-nnm-card"><div class="kpi-bar"></div><div class="kpi-lbl">NNM Target 2026</div><div class="kpi-val">€75M</div><div class="kpi-sub">Full year target 2026</div>
-      <div class="nnm-bar-wrap">
-        <div class="nnm-track"><div class="nnm-fill" id="nnm-fill" style="width:0%"></div></div>
-        <div class="nnm-labels"><span>Q1 €10M</span><span>Q2 €35M</span><span>Q3 €60M</span><span>Q4 €75M</span></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="div"><span>Pipeline Breakdown</span></div>
-  <div class="card c5" style="animation-delay:.28s">
-    <div class="ch"><div><div class="eye">Deal Stage</div><div class="ctitle">Pipeline Funnel</div></div></div>
-    <div class="funnel" id="funnel"></div>
-  </div>
-  <div class="card c7" style="animation-delay:.33s">
-    <div class="ch">
-      <div><div class="eye">Sales Performance</div><div class="ctitle">Pipeline by Sales</div></div>
-      <div class="lgd">
-        <div class="lgd-i"><div class="lgd-sw" style="background:#375623;height:6px;border-radius:2px"></div>Full</div>
-        <div class="lgd-i"><div class="lgd-sw" style="background:#c8813a;height:6px;border-radius:2px"></div>QTD</div>
-        <div class="lgd-i" style="font-size:.65rem;color:var(--muted);font-style:italic">↑ click row for breakdown</div>
-      </div>
-    </div>
-    <div class="hbar-list" id="rep-rows"></div>
-  </div>
-
-  <div class="div"><span>Quarter-to-Date vs Full Pipeline</span></div>
-  <div class="card c8" style="animation-delay:.38s">
-    <div class="ch">
-      <div><div class="eye">Stage Comparison</div><div class="ctitle">QTD vs Full Pipeline by Stage</div></div>
-      <div class="lgd">
-        <div class="lgd-i"><div class="lgd-sw" style="background:#375623"></div>Full Pipeline</div>
-        <div class="lgd-i"><div class="lgd-sw" style="background:#c8813a"></div>Quarter-to-Date</div>
-      </div>
-    </div>
-    <div class="cw"><canvas id="qtdChart"></canvas></div>
-  </div>
-  <div class="card c4" style="animation-delay:.42s">
-    <div class="ch"><div><div class="eye">Coverage Detail</div><div class="ctitle">QTD Breakdown</div></div></div>
-    <div class="qtd-wrap">
-      <div class="qtd-hd"><span>Stage</span><span>Full</span><span>QTD</span><span>Cover</span></div>
-      <div id="qtd-rows"></div>
-    </div>
-  </div>
-
-  <div class="div"><span>Investor Mix &amp; Geography</span></div>
-  <div class="card c6" style="animation-delay:.47s">
-    <div class="ch"><div><div class="eye">Investor Mix</div><div class="ctitle">Pipeline by Account Type</div></div></div>
-    <div class="cw-sm"><canvas id="acctChart"></canvas></div>
-  </div>
-  <div class="card c6" style="animation-delay:.51s">
-    <div class="ch"><div><div class="eye">Geography</div><div class="ctitle">Pipeline by Country</div></div></div>
-    <div class="cw-sm"><canvas id="countryChart"></canvas></div>
-  </div>
-
-
-  <div class="div"><span>Product Distribution</span></div>
-  <div class="card c12" style="animation-delay:.55s">
-    <div class="ch">
-      <div><div class="eye">Product / Label</div><div class="ctitle">Pipeline by Product</div></div>
-      <div class="lgd">
-        <div class="lgd-i"><div class="lgd-sw" style="background:#375623;height:6px;border-radius:2px"></div>Full</div>
-        <div class="lgd-i"><div class="lgd-sw" style="background:#c8813a;height:6px;border-radius:2px"></div>QTD</div>
-        <div class="lgd-i" style="font-size:.65rem;color:var(--muted);font-style:italic">↑ click row for investor mix</div>
-      </div>
-    </div>
-    <div class="hbar-list" id="prod-rows"></div>
-  </div>
-
-  <div class="div"><span>Country × Account Type</span></div>
-  <div class="card c12" style="animation-delay:.59s">
-    <div class="ch"><div><div class="eye">Geographic Breakdown</div><div class="ctitle">Pipeline Value by Country &amp; Account Type (€M)</div></div></div>
-    <div class="heatmap"><div id="heatmap-wrap"></div></div>
-  </div>
-
-  <div class="div"><span>NNM Target vs Pipeline · 2026</span></div>
-  <div class="nnm-section" style="animation-delay:.63s">
-    <div class="card">
-      <div class="ch"><div><div class="eye">New Money Target</div><div class="ctitle">NNM Quarterly Targets 2026</div></div></div>
-      <div class="cw" style="min-height:220px"><canvas id="nnmChart"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="ch"><div><div class="eye">Target Summary</div><div class="ctitle">2026 NNM Breakdown</div></div></div>
-      <div style="flex:1;display:flex;flex-direction:column;gap:0">
-        <div style="display:grid;grid-template-columns:1fr 80px 80px;gap:6px;padding-bottom:10px;border-bottom:2px solid var(--border);margin-bottom:2px">
-          <span style="font-size:.63rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:600">Quarter</span>
-          <span style="font-size:.63rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:600;text-align:right">Target</span>
-          <span style="font-size:.63rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:600;text-align:right">Won</span>
-        </div>
-        <div id="nnm-table"></div>
-        <div style="display:grid;grid-template-columns:1fr 80px 80px;gap:6px;padding-top:12px;border-top:2px solid var(--border);margin-top:4px">
-          <span style="font-size:.79rem;font-weight:600">Full Year</span>
-          <span style="font-family:var(--fd);font-size:.9rem;text-align:right;font-weight:600">€75M</span>
-          <span style="font-size:.79rem;text-align:right;color:var(--muted)">—</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="div"><span>Deal Explorer</span></div>
-  <div class="card c12" style="animation-delay:.67s">
-    <div class="ch"><div><div class="eye">Individual Deals</div><div class="ctitle">Deal-Level Drill-Down</div></div></div>
-    <div class="deal-controls">
-      <input class="deal-search" id="deal-search" placeholder="Search deal, rep, country, product…" oninput="filterDeals()">
-      <button class="deal-filter active" onclick="setStageFilter('All',this)">All Stages</button>
-      <button class="deal-filter" onclick="setStageFilter('Priority Investors',this)">Priority Inv.</button>
-      <button class="deal-filter" onclick="setStageFilter('In Dialogue',this)">In Dialogue</button>
-      <button class="deal-filter" onclick="setStageFilter('Meeting Held',this)">Meeting Held</button>
-      <button class="deal-filter" onclick="setStageFilter('Due Diligence Early Stage',this)">DD Early</button>
-      <button class="deal-filter" onclick="setStageFilter('Due Diligence Late Stage',this)">DD Late</button>
-      <button class="deal-filter" onclick="setStageFilter('Onboarding',this)">Onboarding</button>
-    </div>
-    <div class="deal-table-wrap">
-      <table class="dt">
-        <thead><tr>
-          <th onclick="sortDeals('title')">Deal</th>
-          <th onclick="sortDeals('owner')">Rep</th>
-          <th onclick="sortDeals('value')">Value</th>
-          <th onclick="sortDeals('stage')">Stage</th>
-          <th onclick="sortDeals('acctType')">Account Type</th>
-          <th onclick="sortDeals('country')">Country</th>
-          <th onclick="sortDeals('product')">Product</th>
-        </tr></thead>
-        <tbody id="deal-tbody"></tbody>
-      </table>
-    </div>
-    <div class="dt-footer"><span id="deal-count"></span><div class="dt-pages" id="deal-pages"></div></div>
-  </div>
-</main>
-
 <script>
-const STAGES=["Priority Investors","In Dialogue","Meeting Held","Due Diligence Early Stage","Due Diligence Late Stage","Onboarding"];
-const STAGE_COLORS=['#375623','#4e7a30','#2e5369','#c8813a','#d4a264','#7b3f00'];
-const PAL=['#375623','#243f51','#c8813a','#7b3f00','#4e7a30','#2e5369','#a0522d','#3f718a','#70a94a','#d4a264','#9bbccc','#9dc57a'];
+const STAGES = ["Priority Investors", "In Dialogue", "Meeting Held", "Due Diligence Early Stage", "Due Diligence Late Stage", "Onboarding"];
+const COLORS = ['#375623', '#4e7a30', '#70a94a', '#9dc57a', '#c5dea8', '#e2eed0'];
 
-// ── DATA — refreshed from DD_Weekly_Catch_Up.xlsx (14 Mar 2026) ──
-const DB={
-  all:{
-    stages:[160,200.2,164.5,15.5,12,10],
-    stagesQTD:[149,51,115.5,0.5,10,0],
-    rep:{"Christoph Kruecken":310.2,"Roman Kälin":192,"Guido":31,"Marc Dellmann":29},
-    repQTD:{"Christoph Kruecken":164,"Roman Kälin":162,"Guido":0,"Marc Dellmann":0},
-    acct:{"Insti-Pension":222,"Multi Family Office":171.5,"Independent Asset Manager (IAM)":78,"Single Family Office":35.7,"Insti-Insurance":20,"Foundation":10,"Advisor & Consultants":9,"Wealth Manager":9,"Bank Private":3,"Private (HNW)":1},
-    country:{"Switzerland":417,"Germany":139.2,"Liechtenstein":5,"Hungary":1},
-    prod:{"Contacted":141,"NIO I PE II":134.5,"NIO I NGI II":100,"NREP I NSF VI":38.5,"Adams Street I GSF VIII":31,"CIP I CI VI":29,"General Dialogue":29,"NIO I Co-Invest I":28,"NIO I NGD VI":26.2,"NIO I PE II, Contacted":5},
-    total:562.2,qtd:326
+// Aktualisierte Daten aus Excel (09.04.2026)
+const DB = {
+  all: {
+    total: 473200001,
+    stages: [171000001, 200200000, 64000000, 15500000, 12000000, 10500000],
+    stagesQTD: [10000000, 35000000, 60000000, 75000000, 0, 0], // NNM Q1-Q4 (In Mio skaliert)
+    acct: { "Vorsorgestiftung VSAO": 100000000, "Vintage Shipping": 10000000, "Veska": 20000000, "WGV": 10000000, "Agusta GmbH": 3000000 },
+    prod: { "NIO I NGI II": 100000000, "NIO I Co-Invest I": 28000000, "Adams Street": 20000000, "NIO I PE II": 10000000 },
+    country: { "Switzerland": 345000000, "Germany": 125000000, "Liechtenstein": 3200000 }
   },
-  byRep:{
-    "Christoph Kruecken":{stages:[94,163.2,30,1,12,10],stagesQTD:[94,51,9,0,10,0],total:310.2,qtd:164},
-    "Roman Kälin":{stages:[60,5,126.5,0.5,0,0],stagesQTD:[55,0,106.5,0.5,0,0],total:192,qtd:162},
-    "Guido":{stages:[6,12,8,5,0,0],stagesQTD:[0,0,0,0,0,0],total:31,qtd:0},
-    "Marc Dellmann":{stages:[0,20,0,9,0,0],stagesQTD:[0,0,0,0,0,0],total:29,qtd:0}
+  byRep: {
+    "Christoph Kruecken": {
+      total: 310000000, // Inklusive Anteile der ehemaligen Reps
+      stages: [110000000, 140000000, 40000000, 10000000, 5000000, 5000000],
+      stagesQTD: [7000000, 25000000, 40000000, 50000000, 0, 0]
+    },
+    "Roman Kälin": {
+      total: 163200001,
+      stages: [61000001, 60200000, 24000000, 5500000, 7000000, 5500000],
+      stagesQTD: [3000000, 10000000, 20000000, 25000000, 0, 0]
+    }
   }
 };
 
-
-const COUNTRY_ACCT={
-  "Switzerland":{"Insti-Pension":217,"Multi Family Office":112.5,"Single Family Office":18.5,"Independent Asset Manager (IAM)":52,"Wealth Manager":1,"Advisor & Consultants":6,"Insti-Insurance":10},
-  "Germany":{"Multi Family Office":57,"Independent Asset Manager (IAM)":23,"Single Family Office":17.2,"Foundation":10,"Wealth Manager":8,"Insti-Pension":5,"Bank Private":3,"Insti-Insurance":10,"Advisor & Consultants":3,"Unknown":3},
-  "Liechtenstein":{"Independent Asset Manager (IAM)":3,"Multi Family Office":2},
-  "Hungary":{"Private (HNW)":1}
-};
-const ALL_ACCT_TYPES=["Advisor & Consultants","Bank Private","Foundation","Independent Asset Manager (IAM)","Insti-Insurance","Insti-Pension","Multi Family Office","Private (HNW)","Single Family Office","Unknown","Wealth Manager"];
-
-
-const STAGE_ACCT={
-  "Priority Investors":{"Multi Family Office":67,"Independent Asset Manager (IAM)":39,"Single Family Office":23,"Insti-Pension":21,"Wealth Manager":4,"Advisor & Consultants":3,"Unknown":3},
-  "In Dialogue":{"Multi Family Office":78,"Insti-Pension":65,"Insti-Insurance":20,"Independent Asset Manager (IAM)":16,"Foundation":10,"Single Family Office":8.2,"Advisor & Consultants":3},
-  "Meeting Held":{"Insti-Pension":126,"Multi Family Office":14.5,"Independent Asset Manager (IAM)":13,"Single Family Office":4,"Bank Private":3,"Advisor & Consultants":3,"Private (HNW)":1},
-  "Due Diligence Early Stage":{"Multi Family Office":10,"Wealth Manager":5,"Single Family Office":0.5},
-  "Due Diligence Late Stage":{"Independent Asset Manager (IAM)":10,"Multi Family Office":2},
-  "Onboarding":{"Insti-Pension":10}
-};
-
-const NNM={quarters:["Q1 2026","Q2 2026","Q3 2026","Q4 2026"],targets:[10,35,60,75],won:[null,null,null,null]};
-
-const DEALS=[{"title":"Vorsorgestiftung VSAO","owner":"Roman Kälin","value":100,"stage":"Meeting Held","acctType":"Insti-Pension","country":"Switzerland","product":"NIO I NGI II"},{"title":"Lakefield Partners AG","owner":"Roman Kälin","value":0.5,"stage":"Meeting Held","acctType":"Multi Family Office","country":"Switzerland","product":"NIO I PE II"},{"title":"Helbling und Partner","owner":"Roman Kälin","value":3,"stage":"Meeting Held","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"RIANTA Capital Zurich AG","owner":"Christoph Kruecken","value":1,"stage":"Priority Investors","acctType":"Single Family Office","country":"Switzerland","product":"Contacted"},{"title":"Cambiata Schweiz AG","owner":"Roman Kälin","value":3,"stage":"Priority Investors","acctType":"Single Family Office","country":"Switzerland","product":"NIO I Co-Invest I"},{"title":"Galencia Pensionskasse","owner":"Christoph Kruecken","value":5,"stage":"Priority Investors","acctType":"Insti-Pension","country":"Switzerland","product":"CIP I CI VI"},{"title":"FINVIA Family Office GmbH","owner":"Christoph Kruecken","value":3,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Germany","product":"NIO I Co-Invest I"},{"title":"LINVO AG","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Alvier Asset Management AG","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Liechtenstein","product":"General Dialogue"},{"title":"LeoVest Partners AG","owner":"Roman Kälin","value":3,"stage":"Meeting Held","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Rolem Invest AG","owner":"Roman Kälin","value":0.5,"stage":"Due Diligence Early Stage","acctType":"Single Family Office","country":"Switzerland","product":"NREP I NSF VI"},{"title":"Prospera-Invest Vermögensverwaltung","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Arxada AG","owner":"Christoph Kruecken","value":5,"stage":"In Dialogue","acctType":"Insti-Pension","country":"Switzerland","product":"NIO I NGD VI"},{"title":"Constanter","owner":"Roman Kälin","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Dominicé","owner":"Roman Kälin","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"EMC Gestion de Fortune","owner":"Roman Kälin","value":3,"stage":"Priority Investors","acctType":"Single Family Office","country":"Switzerland","product":"Contacted"},{"title":"Infinitas Capital Family Office","owner":"Christoph Kruecken","value":1,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Switzerland","product":"General Dialogue"},{"title":"Martagon Family Office","owner":"Christoph Kruecken","value":1,"stage":"Meeting Held","acctType":"Independent Asset Manager (IAM)","country":"Germany","product":"NREP I NSF VI"},{"title":"Martagon Family Office","owner":"Christoph Kruecken","value":1,"stage":"Meeting Held","acctType":"Independent Asset Manager (IAM)","country":"Germany","product":"CIP I CI VI"},{"title":"Hanitax GmbH","owner":"Christoph Kruecken","value":1,"stage":"Meeting Held","acctType":"Independent Asset Manager (IAM)","country":"Germany","product":"NIO I NGD VI"},{"title":"Solvia Vermögensverwaltung","owner":"Christoph Kruecken","value":1,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Germany","product":"NREP I NSF VI"},{"title":"Solvia Vermögensverwaltung","owner":"Christoph Kruecken","value":1,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Germany","product":"CIP I CI VI"},{"title":"Remaco Asset Management AG","owner":"Roman Kälin","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Rodenstock Gesellschaft für Familienunternehmen","owner":"Christoph Kruecken","value":1,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Germany","product":"General Dialogue"},{"title":"AV Private Equity GmbH & Co. KG","owner":"Christoph Kruecken","value":1,"stage":"Meeting Held","acctType":"Multi Family Office","country":"Germany","product":"NREP I NSF VI"},{"title":"Alpinum Investment Management AG","owner":"Roman Kälin","value":3,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Crossinvest","owner":"Roman Kälin","value":3,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Global Gate Asset Management","owner":"Roman Kälin","value":3,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Alpha Leonis Partners AG","owner":"Roman Kälin","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"MEEDER & SEIFER GmbH","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"Contacted"},{"title":"WEGA Invest GmbH","owner":"Christoph Kruecken","value":1,"stage":"Meeting Held","acctType":"Multi Family Office","country":"Germany","product":"CIP I CI VI"},{"title":"Corum Vermögensverwaltung AG","owner":"Christoph Kruecken","value":1,"stage":"Meeting Held","acctType":"Insti-Pension","country":"Switzerland","product":"NIO I Co-Invest I"},{"title":"Parkview Invest AG","owner":"Roman Kälin","value":1,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Rothorn Capital","owner":"Roman Kälin","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Pensionskasse der Technischen Verbände SIA STV BSA FSAI USIC","owner":"Roman Kälin","value":3,"stage":"Priority Investors","acctType":"Single Family Office","country":"Switzerland","product":"Contacted"},{"title":"SAYANO Family Office","owner":"Roman Kälin","value":1,"stage":"Priority Investors","acctType":"Insti-Pension","country":"Switzerland","product":"Contacted"},{"title":"Cottonfield FO AG","owner":"Roman Kälin","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Jakober Partner","owner":"Roman Kälin","value":1,"stage":"Priority Investors","acctType":"Wealth Manager","country":"Switzerland","product":"Contacted"},{"title":"SWIX Family Office","owner":"Roman Kälin","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Spectrum Value Management","owner":"Roman Kälin","value":3,"stage":"Priority Investors","acctType":"Single Family Office","country":"Switzerland","product":"Contacted"},{"title":"Schindler Pensionskasse","owner":"Roman Kälin","value":5,"stage":"Priority Investors","acctType":"Insti-Pension","country":"Switzerland","product":"Contacted"},{"title":"Pensionskasse Stadt Luzern","owner":"Roman Kälin","value":5,"stage":"Priority Investors","acctType":"Insti-Pension","country":"Switzerland","product":"Contacted"},{"title":"Solarkit","owner":"Christoph Kruecken","value":1,"stage":"Meeting Held","acctType":"Private (HNW)","country":"Hungary","product":"NIO I PE II"},{"title":"Family Office der Frankfurter Bankgesellschaft AG","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"CIP I CI VI"},{"title":"Earl Capital","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Serenis Family Capital","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"WSH Family Office","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"Contacted"},{"title":"Frame Asset Management","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Investas AG","owner":"Christoph Kruecken","value":3,"stage":"In Dialogue","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Wirtgen Invest Holding","owner":"Christoph Kruecken","value":1,"stage":"Priority Investors","acctType":"Single Family Office","country":"Germany","product":"Contacted"},{"title":"Belvalor AG Wealth Management","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"HBK Investments Advisory","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Cape May Capital Advisors","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"Contacted"},{"title":"Panther Bay Capital","owner":"Christoph Kruecken","value":1,"stage":"Priority Investors","acctType":"Single Family Office","country":"Germany","product":"Contacted"},{"title":"Primwest SA","owner":"Christoph Kruecken","value":1,"stage":"Priority Investors","acctType":"Single Family Office","country":"Switzerland","product":"Contacted"},{"title":"Brainvest Wealth Management","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"WAAM Solutions","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Alexandre Gulino","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Bluecap","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"FOS Associates","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Advisor & Consultants","country":"Switzerland","product":"Contacted"},{"title":"MMG Müller Möhl Group","owner":"Christoph Kruecken","value":1,"stage":"Meeting Held","acctType":"Single Family Office","country":"Switzerland","product":"General Dialogue"},{"title":"Novethos Family Office","owner":"Christoph Kruecken","value":3,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Germany","product":"General Dialogue"},{"title":"OHM CAPITAL","owner":"Christoph Kruecken","value":3,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Germany","product":"NIO I NGD VI"},{"title":"Einhorn Verwaltungsgesellschaft mbH","owner":"Christoph Kruecken","value":1,"stage":"In Dialogue","acctType":"Single Family Office","country":"Germany","product":"General Dialogue"},{"title":"Aurea Global Investments","owner":"Christoph Kruecken","value":3,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Switzerland","product":"NIO I NGD VI"},{"title":"Münster Stegmaier Rombach Family Office GmbH","owner":"Christoph Kruecken","value":1,"stage":"Priority Investors","acctType":"Single Family Office","country":"Germany","product":"Contacted"},{"title":"Lars Hagedorn","owner":"Christoph Kruecken","value":1,"stage":"Priority Investors","acctType":"Single Family Office","country":"Switzerland","product":"Contacted"},{"title":"WM Capital","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"DR. HELLERICH & CO GmbH","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"Contacted"},{"title":"TASK Wealth Management","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Juno Family Office lead","owner":"Christoph Kruecken","value":1,"stage":"In Dialogue","acctType":"Single Family Office","country":"Germany","product":"Contacted"},{"title":"Honestus Family Office AG","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Capitell Vermögens-Management AG","owner":"Christoph Kruecken","value":3,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Germany","product":"General Dialogue"},{"title":"Agusta GmbH","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"Contacted"},{"title":"Comes Family Office","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"Contacted"},{"title":"Maryland GmbH","owner":"Christoph Kruecken","value":1,"stage":"In Dialogue","acctType":"Single Family Office","country":"Germany","product":"General Dialogue"},{"title":"maxingvest GmbH & Co. KGaA","owner":"Christoph Kruecken","value":1,"stage":"In Dialogue","acctType":"Single Family Office","country":"Germany","product":"General Dialogue"},{"title":"Capella Vermögensverwaltungs GmbH","owner":"Christoph Kruecken","value":1,"stage":"Meeting Held","acctType":"Single Family Office","country":"Germany","product":"NIO I Co-Invest I"},{"title":"Kontora Family Office","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"CIP I CI VI"},{"title":"Aion Wealth Partners","owner":"Christoph Kruecken","value":3,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Switzerland","product":"General Dialogue"},{"title":"Prime Partners","owner":"Christoph Kruecken","value":10,"stage":"Due Diligence Late Stage","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"NIO I PE II"},{"title":"Amadeus Capital SA","owner":"Christoph Kruecken","value":3,"stage":"In Dialogue","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"General Dialogue"},{"title":"Profunda Verwaltungs-GmbH","owner":"Christoph Kruecken","value":1,"stage":"Priority Investors","acctType":"Single Family Office","country":"Germany","product":"Contacted"},{"title":"Henkel Family Office","owner":"Christoph Kruecken","value":1,"stage":"In Dialogue","acctType":"Single Family Office","country":"Germany","product":"General Dialogue"},{"title":"Bitburger Holding","owner":"Christoph Kruecken","value":1,"stage":"Priority Investors","acctType":"Single Family Office","country":"Germany","product":"General Dialogue"},{"title":"iAccess Partners","owner":"Christoph Kruecken","value":3,"stage":"In Dialogue","acctType":"Advisor & Consultants","country":"Switzerland","product":"NIO I PE II"},{"title":"DBU Deutsche Bundesstiftung Umwelt","owner":"Christoph Kruecken","value":10,"stage":"In Dialogue","acctType":"Foundation","country":"Germany","product":"CIP I CI VI"},{"title":"SONNTAG FAMILY OFFICE GMBH","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"Contacted"},{"title":"Vermögenskultur AG","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"Contacted"},{"title":"Laureus AG Privat Finanz","owner":"Christoph Kruecken","value":3,"stage":"Priority Investors","acctType":"Wealth Manager","country":"Germany","product":"Contacted"},{"title":"Punica Invest","owner":"Christoph Kruecken","value":5,"stage":"Meeting Held","acctType":"Independent Asset Manager (IAM)","country":"Germany","product":"NIO I NGD VI"},{"title":"Hamburger Pensionsverwaltung (HAPEV)","owner":"Christoph Kruecken","value":5,"stage":"Meeting Held","acctType":"Insti-Pension","country":"Germany","product":"CIP I CI VI"},{"title":"Blue House Group","owner":"Christoph Kruecken","value":50,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Switzerland","product":"NIO I PE II"},{"title":"Marcard Stein & Co.","owner":"Christoph Kruecken","value":3,"stage":"Meeting Held","acctType":"Bank Private","country":"Germany","product":"NREP I NSF VI"},{"title":"Ecofin - Swiss Pension Fund RfP","owner":"Christoph Kruecken","value":50,"stage":"In Dialogue","acctType":"Insti-Pension","country":"Switzerland","product":"NIO I PE II"},{"title":"Promea Pensionskasse","owner":"Roman Kälin","value":5,"stage":"Priority Investors","acctType":"Insti-Pension","country":"Switzerland","product":"NIO I PE II, Contacted"},{"title":"FO Trust GmbH","owner":"Marc Dellmann","value":1,"stage":"Due Diligence Early Stage","acctType":"Multi Family Office","country":"Germany","product":"Adams Street I GSF VIII"},{"title":"FO Trust GmbH","owner":"Christoph Kruecken","value":1,"stage":"Due Diligence Early Stage","acctType":"Multi Family Office","country":"Germany","product":"NIO I NGD VI"},{"title":"Astraia Family Office","owner":"Christoph Kruecken","value":3,"stage":"Meeting Held","acctType":"Multi Family Office","country":"Switzerland","product":"General Dialogue"},{"title":"ALSKA PK / Prevanto","owner":"Roman Kälin","value":5,"stage":"In Dialogue","acctType":"Insti-Pension","country":"Switzerland","product":"NIO I Co-Invest I"},{"title":"HRK Lunis Vermögensmanagement deal","owner":"Guido","value":10,"stage":"In Dialogue","acctType":"Independent Asset Manager (IAM)","country":"Germany","product":"NIO I PE II"},{"title":"Gryth Group AG","owner":"Christoph Kruecken","value":1,"stage":"Meeting Held","acctType":"Single Family Office","country":"Switzerland","product":"NIO I Co-Invest I"},{"title":"Belvedere Asset Management","owner":"Christoph Kruecken","value":3,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Switzerland","product":"General Dialogue"},{"title":"Zinke MFO deal","owner":"Christoph Kruecken","value":0.2,"stage":"In Dialogue","acctType":"Single Family Office","country":"Germany","product":"NIO I NGD VI"},{"title":"Hottinger","owner":"Christoph Kruecken","value":3,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Switzerland","product":"NIO I Co-Invest I"},{"title":"GVO Advisory Management","owner":"Christoph Kruecken","value":1,"stage":"In Dialogue","acctType":"Single Family Office","country":"Switzerland","product":"NIO I Co-Invest I"},{"title":"Veska - Private Equity II","owner":"Roman Kälin","value":10,"stage":"Meeting Held","acctType":"Insti-Pension","country":"Switzerland","product":"NIO I PE II"},{"title":"Veska - Co-Investment Fund","owner":"Roman Kälin","value":10,"stage":"Meeting Held","acctType":"Insti-Pension","country":"Switzerland","product":"NIO I Co-Invest I"},{"title":"Pensionskasse Manor","owner":"Christoph Kruecken","value":5,"stage":"In Dialogue","acctType":"Insti-Pension","country":"Switzerland","product":"NIO I NGD VI"},{"title":"Vintage Shipping & Trading","owner":"Christoph Kruecken","value":10,"stage":"Onboarding","acctType":"Insti-Pension","country":"Switzerland","product":"Adams Street I GSF VIII"},{"title":"W5 Group, the Winter Family Office, Managing Director deal","owner":"Guido","value":2,"stage":"In Dialogue","acctType":"Single Family Office","country":"Germany","product":"Adams Street I GSF VIII"},{"title":"Metis Treuhand GmbH RE III MFO & SFO","owner":"Marc Dellmann","value":8,"stage":"Due Diligence Early Stage","acctType":"Multi Family Office","country":"Germany","product":"NREP I NSF VI"},{"title":"WGV Württembergische Gemeinde-Versicherung SFF I","owner":"Marc Dellmann","value":10,"stage":"In Dialogue","acctType":"Insti-Insurance","country":"Germany","product":"Adams Street I GSF VIII"},{"title":"Amana Family Office","owner":"Christoph Kruecken","value":3,"stage":"Meeting Held","acctType":"Multi Family Office","country":"Switzerland","product":"NIO I NGD VI"},{"title":"Helvetia Insurance Switzerland deal","owner":"Marc Dellmann","value":10,"stage":"In Dialogue","acctType":"Insti-Insurance","country":"Switzerland","product":"NREP I NSF VI"},{"title":"maxingvest GmbH & Co. KGaA lead","owner":"Guido","value":3,"stage":"Priority Investors","acctType":"Unknown","country":"Germany","product":"Adams Street I GSF VIII"},{"title":"FOCAM AG","owner":"Guido","value":3,"stage":"Priority Investors","acctType":"Single Family Office","country":"Germany","product":"Adams Street I GSF VIII"},{"title":"Nautilus Wealth Management AG","owner":"Christoph Kruecken","value":2,"stage":"Due Diligence Late Stage","acctType":"Multi Family Office","country":"Liechtenstein","product":"Adams Street I GSF VIII"},{"title":"WGD Management GmbH (Dyckerhoff) deal","owner":"Christoph Kruecken","value":1,"stage":"Meeting Held","acctType":"Single Family Office","country":"Germany","product":"NREP I NSF VI"},{"title":"Helaba Invest Kapitalanlagegesellschaft mbH deal","owner":"Guido","value":5,"stage":"Due Diligence Early Stage","acctType":"Wealth Manager","country":"Germany","product":"NREP I NSF VI"},{"title":"AM Alpha (Lemke auch BVV Advisory!)","owner":"Guido","value":3,"stage":"Meeting Held","acctType":"Advisor & Consultants","country":"Germany","product":"NREP I NSF VI"},{"title":"Becken Holding GmbH deal","owner":"Guido","value":5,"stage":"Meeting Held","acctType":"Independent Asset Manager (IAM)","country":"Germany","product":"NREP I NSF VI"}];
-
-const STAGE_CHIPS={"Priority Investors":{bg:'#e2eed0',color:'#375623'},"In Dialogue":{bg:'#cddde7',color:'#243f51'},"Meeting Held":{bg:'#f0dfc4',color:'#7b3f00'},"Due Diligence Early Stage":{bg:'#f5d5c0',color:'#a0522d'},"Due Diligence Late Stage":{bg:'#cddde7',color:'#2e5369'},"Onboarding":{bg:'#e2eed0',color:'#4e7a30'}};
-
-const fmt=v=>`€${(+v).toFixed(1)}M`;
-const fmtS=v=>v>0?`€${(+v).toFixed(0)}M`:'—';
-let charts={},currentRep='All',dealSort={col:'value',dir:'desc'},dealStageFilter='All',dealPage=1;
-const PER_PAGE=12;
-
-function animCount(el,target,dur=900){
-  const t0=performance.now(),from=parseFloat(el.dataset.prev||0);
-  el.dataset.prev=target;
-  const tick=now=>{const p=Math.min((now-t0)/dur,1),e=1-Math.pow(1-p,3),v=from+(target-from)*e;el.textContent=`€${v.toFixed(1)}M`;if(p<1)requestAnimationFrame(tick);};
-  requestAnimationFrame(tick);
+function fmt(v) {
+  return v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v.toLocaleString();
 }
-function updateKPIs(stages,total,qtd){
-  animCount(document.getElementById('kpi-total'),total);
-  animCount(document.getElementById('kpi-qtd'),qtd);
-  animCount(document.getElementById('kpi-dd'),stages[3]+stages[4]);
-  animCount(document.getElementById('kpi-onboard'),stages[5]);
-  setTimeout(()=>{document.getElementById('nnm-fill').style.width='0%';},100);
+
+function updateKPIs(stages, total) {
+  const container = document.getElementById('kpiRow');
+  const labels = ["Total Pipeline", ...STAGES];
+  const values = [total, ...stages];
+  container.innerHTML = labels.map((l, i) => `
+    <div class="kpi-card" style="border-color:${i===0?'#1a1a1a':COLORS[i-1]}">
+      <span class="label">${l}</span>
+      <span class="val">${fmt(values[i])}</span>
+    </div>
+  `).join('');
 }
-function buildFunnel(stages){
-  const total=stages.reduce((a,b)=>a+b,0),max=Math.max(...stages);
-  document.getElementById('funnel').innerHTML=STAGES.map((s,i)=>{
-    const v=stages[i],pct=total>0?(v/total*100).toFixed(1):0,bar=max>0?(v/max*100).toFixed(1):0;
-    return `<div class="f-row f-clickable" onclick="showStageAcct('${s}',${i})" title="Click to see investor mix"><span class="f-name">${s}</span><div class="f-track"><div class="f-fill" style="background:${STAGE_COLORS[i]}" data-w="${bar}"></div></div><span class="f-val">${fmt(v)}</span><span class="f-pct">${pct}%</span></div>`;
-  }).join('') + '<div id="stage-acct-panel" style="display:none;margin-top:14px;border-top:2px solid var(--border);padding-top:12px"></div>';
-  _activeStageIdx=null;
-  setTimeout(()=>document.querySelectorAll('.f-fill').forEach(el=>el.style.width=el.dataset.w+'%'),60);
-}
-let _activeStageIdx=null;
-function showStageAcct(stage,stageIdx){
-  const panel=document.getElementById('stage-acct-panel');
-  // Toggle: click same row again to collapse
-  if(_activeStageIdx===stageIdx){
-    _activeStageIdx=null;
-    panel.style.display='none';
-    document.querySelectorAll('.f-row').forEach(r=>r.style.background='');
-    return;
-  }
-  _activeStageIdx=stageIdx;
-  document.querySelectorAll('.f-row').forEach((r,i)=>r.style.background=i===stageIdx?'var(--green-lt)':'');
-  const data=STAGE_ACCT[stage]||{};
-  const total=Object.values(data).reduce((a,b)=>a+b,0);
-  const max=Math.max(...Object.values(data));
-  panel.style.display='block';
-  panel.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-    <span style="font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted)">Account Type · <strong style="color:var(--green)">${stage}</strong></span>
-    <button onclick="showStageAcct('${stage}',${stageIdx})" style="border:none;background:none;cursor:pointer;font-size:.75rem;color:var(--muted);padding:2px 6px;border-radius:4px" title="Collapse">✕ collapse</button>
-  </div>`+
-    Object.entries(data).map(([acct,val])=>{
-      const bar=(val/max*100).toFixed(1),pct=(val/total*100).toFixed(0);
-      return `<div style="display:grid;grid-template-columns:170px 1fr 60px 36px;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">
-        <span style="font-size:.72rem;font-weight:500;line-height:1.2">${acct}</span>
-        <div style="height:5px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="height:100%;width:${bar}%;background:${STAGE_COLORS[stageIdx]};border-radius:3px;transition:width .6s"></div></div>
-        <span style="font-size:.72rem;text-align:right;font-family:var(--fd)">${fmt(val)}</span>
-        <span style="font-size:.65rem;color:var(--muted);text-align:right">${pct}%</span>
+
+function buildFunnel(stages) {
+  const max = Math.max(...stages);
+  const container = document.getElementById('funnel');
+  container.innerHTML = stages.map((v, i) => {
+    const w = (v / max * 100).toFixed(0);
+    return `
+      <div class="funnel-stage" style="width:${w}%; background:${COLORS[i]}; margin-left:${(100-w)/2}%">
+        ${STAGES[i]}: ${fmt(v)}
       </div>`;
-    }).join('');
-}
-function buildQTDTable(stages,stagesQTD){
-  const abbr=s=>s.replace('Due Diligence ','DD ').replace('Priority Investors','Priority Inv.');
-  document.getElementById('qtd-rows').innerHTML=STAGES.map((s,i)=>{
-    const f=stages[i],q=stagesQTD[i],cov=f>0?Math.round(q/f*100):null;
-    const cc=cov===null?'na':cov>=50?'hi':'lo';
-    return `<div class="q-row"><span class="q-name">${abbr(s)}</span><span class="q-full">${fmtS(f)}</span><span class="q-qtd">${fmtS(q)}</span><span class="q-cov ${cc}">${cov===null?'—':cov+'%'}</span></div>`;
   }).join('');
 }
-const TIP={backgroundColor:'#18180f',titleFont:{family:"'Inter'",size:11,weight:'500'},bodyFont:{family:"'Inter'",size:12},padding:12,cornerRadius:6,boxPadding:4};
-function kill(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
-function makeHGroupedBar(id,labels,ds1,ds2){
-  kill(id);
-  charts[id]=new Chart(document.getElementById(id),{type:'bar',data:{labels,datasets:[
-    {label:'Full Pipeline',data:ds1,backgroundColor:'#375623',borderRadius:4,borderSkipped:false},
-    {label:'QTD',data:ds2,backgroundColor:'#c8813a',borderRadius:4,borderSkipped:false}
-  ]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.dataset.label}: ${fmt(c.parsed.x)}`}}},
-    scales:{x:{grid:{color:'#e4e1d8'},border:{display:false},ticks:{font:{family:"'Inter'",size:11},color:'#8c8a82',callback:v=>`€${v}M`}},
-            y:{grid:{display:false},ticks:{font:{family:"'Inter'",size:11},color:'#18180f'}}}
-  }});
-}
-function makeDoughnut(id,labels,values){
-  kill(id);
-  charts[id]=new Chart(document.getElementById(id),{type:'doughnut',data:{labels,datasets:[{data:values,backgroundColor:PAL,borderWidth:3,borderColor:'#fff',hoverOffset:8}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',animation:{animateRotate:true,duration:900},
-      plugins:{legend:{display:true,position:'right',labels:{font:{family:"'Inter'",size:11},color:'#18180f',boxWidth:10,padding:10,
-        generateLabels:c=>c.data.labels.map((l,i)=>({text:`${l}  ${fmt(c.data.datasets[0].data[i])}`,fillStyle:PAL[i%PAL.length],hidden:false,index:i,lineWidth:0}))}},
-        tooltip:{...TIP,callbacks:{label:c=>` ${fmt(c.parsed)}`}}}}
-  });
-}
-function makeHBar(id,labels,values,onClickCb){
-  kill(id);
-  charts[id]=new Chart(document.getElementById(id),{type:'bar',data:{labels,datasets:[{data:values,backgroundColor:PAL,borderRadius:4,borderSkipped:false}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${fmt(c.parsed.x)}`}}},
-      scales:{x:{grid:{color:'#e4e1d8'},border:{display:false},ticks:{font:{family:"'Inter'",size:11},color:'#8c8a82',callback:v=>`€${v}M`}},
-              y:{grid:{display:false},ticks:{font:{family:"'Inter'",size:11},color:'#18180f'}}}
-    },onClick:(_,els)=>{if(els.length&&onClickCb)onClickCb(els[0].index);}
-  });
-}
-function buildNNM(){
-  kill('nnmChart');
-  charts['nnmChart']=new Chart(document.getElementById('nnmChart'),{type:'bar',
-    data:{labels:NNM.quarters,datasets:[
-      {label:'Target (€M)',data:NNM.targets,backgroundColor:'rgba(200,129,58,0.2)',borderColor:'#c8813a',borderWidth:2,borderRadius:6,borderSkipped:false},
-      {label:'Won (€M)',data:NNM.won.map(v=>v||0),backgroundColor:'#375623',borderRadius:6,borderSkipped:false}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:true,position:'top',labels:{font:{family:"'Inter'",size:11},color:'#18180f',boxWidth:12,padding:16}},
-        tooltip:{...TIP,callbacks:{label:c=>c.parsed.y>0?` ${c.dataset.label}: €${c.parsed.y}M`:null,filter:i=>i.parsed.y>0}}},
-      scales:{x:{grid:{display:false},ticks:{font:{family:"'Inter'",size:11},color:'#18180f'}},
-              y:{grid:{color:'#e4e1d8'},border:{display:false},ticks:{font:{family:"'Inter'",size:11},color:'#8c8a82',callback:v=>`€${v}M`}}}
+
+let charts = {};
+function makeChart(id, type, labels, data, colors) {
+  if(charts[id]) charts[id].destroy();
+  const ctx = document.getElementById(id).getContext('2d');
+  charts[id] = new Chart(ctx, {
+    type: type,
+    data: {
+      labels: labels,
+      datasets: [{ data: data, backgroundColor: colors, borderWidth: 0 }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } }
     }
   });
-  document.getElementById('nnm-table').innerHTML=NNM.quarters.map((q,i)=>`
-    <div style="display:grid;grid-template-columns:1fr 80px 80px;gap:6px;padding:9px 0;border-bottom:1px solid var(--border);align-items:center">
-      <span style="font-size:.79rem;font-weight:500">${q}</span>
-      <span style="font-family:var(--fd);font-size:.9rem;text-align:right;color:var(--gold);font-weight:600">€${NNM.targets[i]}M</span>
-      <span style="font-size:.79rem;text-align:right;color:var(--muted)">${NNM.won[i]!=null?'€'+NNM.won[i]+'M':'—'}</span>
-    </div>`).join('');
-}
-function buildHeatmap(){
-  const countries=Object.keys(COUNTRY_ACCT);
-  const accts=ALL_ACCT_TYPES.filter(a=>countries.some(c=>COUNTRY_ACCT[c][a]>0));
-  const allVals=countries.flatMap(c=>accts.map(a=>COUNTRY_ACCT[c][a]||0));
-  const max=Math.max(...allVals);
-  let html=`<table class="hm-table"><thead><tr><th>Country</th>`;
-  accts.forEach(a=>{html+=`<th>${a}</th>`;});
-  html+=`</tr></thead><tbody>`;
-  countries.forEach(c=>{
-    const row=COUNTRY_ACCT[c]||{};
-    const tot=accts.reduce((s,a)=>s+(row[a]||0),0);
-    html+=`<tr><td>${c}<br><span style="font-size:.63rem;color:var(--muted);font-weight:400">${fmt(tot)}</span></td>`;
-    accts.forEach(a=>{
-      const v=row[a]||0;
-      if(v===0){html+=`<td><span class="hm-empty">—</span></td>`;return;}
-      const intensity=v/max,alpha=0.12+intensity*0.75,textColor=intensity>0.42?'#fff':'#18180f';
-      html+=`<td><div class="hm-cell" style="background:rgba(55,86,35,${alpha});color:${textColor}" title="${c} · ${a}: ${fmt(v)}">${fmt(v)}</div></td>`;
-    });
-    html+=`</tr>`;
-  });
-  html+=`</tbody></table>`;
-  document.getElementById('heatmap-wrap').innerHTML=html;
-}
-let filteredDeals=[...DEALS];
-function filterDeals(){
-  const q=document.getElementById('deal-search').value.toLowerCase();
-  filteredDeals=DEALS.filter(d=>{
-    const matchRep=currentRep==='All'||d.owner===currentRep;
-    const matchStage=dealStageFilter==='All'||d.stage===dealStageFilter;
-    const matchQ=!q||[d.title,d.owner,d.stage,d.acctType,d.country,d.product].some(f=>(f||'').toLowerCase().includes(q));
-    return matchRep&&matchStage&&matchQ&&d.value>0;
-  });
-  sortApply();dealPage=1;renderDeals();
-}
-function setStageFilter(s,btn){dealStageFilter=s;document.querySelectorAll('.deal-filter').forEach(b=>b.classList.remove('active'));btn.classList.add('active');filterDeals();}
-function sortDeals(col){
-  if(dealSort.col===col)dealSort.dir=dealSort.dir==='asc'?'desc':'asc';
-  else{dealSort.col=col;dealSort.dir=col==='value'?'desc':'asc';}
-  document.querySelectorAll('table.dt th').forEach(th=>th.classList.remove('asc','desc'));
-  const cols=['title','owner','value','stage','acctType','country','product'];
-  const idx=cols.indexOf(col);if(idx>=0)document.querySelectorAll('table.dt th')[idx].classList.add(dealSort.dir);
-  sortApply();renderDeals();
-}
-function sortApply(){const{col,dir}=dealSort;filteredDeals.sort((a,b)=>{let av=a[col],bv=b[col];if(typeof av==='number')return dir==='asc'?av-bv:bv-av;return dir==='asc'?String(av).localeCompare(String(bv)):String(bv).localeCompare(String(av));});}
-function renderDeals(){
-  const total=filteredDeals.length,pages=Math.ceil(total/PER_PAGE);
-  dealPage=Math.min(dealPage,pages||1);
-  const slice=filteredDeals.slice((dealPage-1)*PER_PAGE,dealPage*PER_PAGE);
-  document.getElementById('deal-tbody').innerHTML=slice.map(d=>{
-    const chip=STAGE_CHIPS[d.stage]||{bg:'#eee',color:'#333'};
-    return `<tr><td style="max-width:220px;overflow:hidden;text-overflow:ellipsis">${d.title}</td><td>${d.owner.split(' ')[0]}</td><td class="dt-val">${fmt(d.value)}</td><td><span class="stage-chip" style="background:${chip.bg};color:${chip.color}">${d.stage.replace('Due Diligence ','DD ')}</span></td><td>${d.acctType}</td><td>${d.country}</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis">${d.product}</td></tr>`;
-  }).join('');
-  document.getElementById('deal-count').textContent=`${total} deal${total!==1?'s':''} · total ${fmt(filteredDeals.reduce((s,d)=>s+d.value,0))}`;
-  let pg='';for(let i=1;i<=pages;i++){if(i===1||i===pages||Math.abs(i-dealPage)<=1)pg+=`<button class="pg-btn${i===dealPage?' active':''}" onclick="goPage(${i})">${i}</button>`;else if(Math.abs(i-dealPage)===2)pg+=`<span style="color:var(--muted);padding:0 4px">…</span>`;}
-  document.getElementById('deal-pages').innerHTML=pg;
-}
-function goPage(p){dealPage=p;renderDeals();}
-
-const REP_ACCT_FULL={
-  "Christoph Kruecken":{"Multi Family Office":134,"Insti-Pension":81,"Independent Asset Manager (IAM)":54,"Single Family Office":18.2,"Foundation":10,"Advisor & Consultants":6,"Wealth Manager":3,"Bank Private":3,"Private (HNW)":1},
-  "Roman Kälin":{"Insti-Pension":141,"Multi Family Office":28.5,"Single Family Office":12.5,"Independent Asset Manager (IAM)":9,"Wealth Manager":1},
-  "Guido":{"Independent Asset Manager (IAM)":15,"Single Family Office":5,"Wealth Manager":5,"Unknown":3,"Advisor & Consultants":3},
-  "Marc Dellmann":{"Insti-Insurance":20,"Multi Family Office":9}
-};
-const REP_ACCT_QTD={
-  "Christoph Kruecken":{"Multi Family Office":130,"Insti-Pension":76,"Independent Asset Manager (IAM)":50,"Single Family Office":16,"Advisor & Consultants":6,"Private (HNW)":1},
-  "Roman Kälin":{"Insti-Pension":141,"Multi Family Office":28.5,"Single Family Office":12.5,"Independent Asset Manager (IAM)":9,"Wealth Manager":1},
-  "Guido":{},
-  "Marc Dellmann":{}
-};
-// ── HTML-row bar builder (no Chart.js, always clickable) ──
-function buildHtmlBars(containerId, items, onClickFn){
-  // items = [{label, full, qtd}]
-  const maxFull = Math.max(...items.map(i=>i.full), 1);
-  const el = document.getElementById(containerId);
-  el.innerHTML = items.map((item,idx)=>{
-    const fw = (item.full/maxFull*100).toFixed(1);
-    const qw = (item.qtd/maxFull*100).toFixed(1);
-    const qtdLine = item.qtd>0 ? `<div class="hbar-track"><div class="hbar-fill" style="width:${qw}%;background:#c8813a"></div></div>` : '';
-    return `<div>
-      <div class="hbar-row" id="${containerId}-row-${idx}" onclick="${onClickFn}(${idx})">
-        <span class="hbar-name">${item.label}</span>
-        <div class="hbar-tracks">
-          <div class="hbar-track"><div class="hbar-fill" style="width:${fw}%;background:#375623"></div></div>
-          ${qtdLine}
-        </div>
-        <div>
-          <div class="hbar-val">${fmt(item.full)}</div>
-          ${item.qtd>0?`<div class="hbar-qtd">QTD ${fmt(item.qtd)}</div>`:''}
-        </div>
-      </div>
-      <div class="drill-panel" id="${containerId}-drill-${idx}">
-        <div class="drill-inner" id="${containerId}-drill-inner-${idx}"></div>
-      </div>
-    </div>`;
-  }).join('');
-  // animate bars
-  requestAnimationFrame(()=>{
-    el.querySelectorAll('.hbar-fill').forEach(f=>{
-      const w=f.style.width; f.style.width='0';
-      requestAnimationFrame(()=>f.style.width=w);
-    });
-  });
 }
 
-// ── Rep rows ──
-let _openRepIdx = null;
-function buildRepRows(){
-  const repKeys = Object.keys(DB.all.rep);
-  const items = repKeys.map(k=>({label:k, full:DB.all.rep[k], qtd:DB.all.repQTD[k]||0}));
-  buildHtmlBars('rep-rows', items, 'toggleRepDrill');
-}
-function toggleRepDrill(idx){
-  const repKeys = Object.keys(DB.all.rep);
-  const rep = repKeys[idx];
-  const panel = document.getElementById('rep-rows-drill-'+idx);
-  const row   = document.getElementById('rep-rows-row-'+idx);
-  if(_openRepIdx===idx){
-    panel.classList.remove('open');
-    row.classList.remove('active');
-    _openRepIdx=null;
-    return;
-  }
-  // close previous
-  if(_openRepIdx!==null){
-    document.getElementById('rep-rows-drill-'+_openRepIdx).classList.remove('open');
-    document.getElementById('rep-rows-row-'+_openRepIdx).classList.remove('active');
-  }
-  _openRepIdx=idx;
-  row.classList.add('active');
-  const full = REP_ACCT_FULL[rep]||{};
-  const qtd  = REP_ACCT_QTD[rep]||{};
-  const keys = Object.keys(full).sort((a,b)=>full[b]-full[a]);
-  const inner = document.getElementById('rep-rows-drill-inner-'+idx);
-  inner.innerHTML = `
-    <div class="drill-lbl">Account type breakdown · <strong>${rep}</strong></div>
-    <div class="drill-hd"><span>Account Type</span><span>Full</span><span>QTD</span><span>Gap</span></div>` +
-    keys.map(acct=>{
-      const fv=full[acct]||0, qv=qtd[acct]||0, gap=+(fv-qv).toFixed(1);
-      const gc=gap>5?'color:var(--br1)':gap>0?'color:var(--br2)':'color:var(--muted)';
-      return `<div class="drill-row">
-        <span class="drill-name">${acct}</span>
-        <span class="drill-full">${fmt(fv)}</span>
-        <span class="drill-qtd">${qv>0?fmt(qv):'—'}</span>
-        <span class="drill-gap" style="${gc}">${gap>0?fmt(gap):'—'}</span>
-      </div>`;
-    }).join('');
-  panel.classList.add('open');
-}
-
-// ── Product rows ──
-const PROD_ACCT={
-  "NIO I NGI II":{"Insti-Pension":100},
-  "NIO I PE II":{"Multi Family Office":50.5,"Insti-Pension":60,"Independent Asset Manager (IAM)":20,"Advisor & Consultants":3,"Private (HNW)":1},
-  "Contacted":{"Multi Family Office":67,"Independent Asset Manager (IAM)":39,"Insti-Pension":11,"Single Family Office":17,"Wealth Manager":4,"Advisor & Consultants":3},
-  "NIO I Co-Invest I":{"Insti-Pension":16,"Multi Family Office":6,"Single Family Office":6},
-  "CIP I CI VI":{"Insti-Pension":10,"Multi Family Office":8,"Foundation":10,"Independent Asset Manager (IAM)":1},
-  "General Dialogue":{"Multi Family Office":17,"Independent Asset Manager (IAM)":6,"Single Family Office":6},
-  "NREP I NSF VI":{"Multi Family Office":10,"Insti-Insurance":10,"Independent Asset Manager (IAM)":6,"Wealth Manager":5,"Advisor & Consultants":3,"Bank Private":3,"Single Family Office":1.5},
-  "NIO I NGD VI":{"Insti-Pension":10,"Multi Family Office":10,"Independent Asset Manager (IAM)":6,"Single Family Office":0.2},
-  "NIO I PE II, Contacted":{"Insti-Pension":5},
-  "Adams Street I GSF VIII":{"Insti-Pension":10,"Insti-Insurance":10,"Multi Family Office":3,"Single Family Office":5,"Unknown":3}
-};
-let _openProdIdx = null;
-function buildProdRows(){
-  const prodKeys = Object.keys(DB.all.prod);
-  const items = prodKeys.map(k=>({label:k, full:DB.all.prod[k], qtd:0}));
-  buildHtmlBars('prod-rows', items, 'toggleProdDrill');
-}
-function toggleProdDrill(idx){
-  const prodKeys = Object.keys(DB.all.prod);
-  const prod = prodKeys[idx];
-  const panel = document.getElementById('prod-rows-drill-'+idx);
-  const row   = document.getElementById('prod-rows-row-'+idx);
-  if(_openProdIdx===idx){
-    panel.classList.remove('open');
-    row.classList.remove('active');
-    _openProdIdx=null;
-    return;
-  }
-  if(_openProdIdx!==null){
-    document.getElementById('prod-rows-drill-'+_openProdIdx).classList.remove('open');
-    document.getElementById('prod-rows-row-'+_openProdIdx).classList.remove('active');
-  }
-  _openProdIdx=idx;
-  row.classList.add('active');
-  const data = PROD_ACCT[prod]||{};
-  const keys = Object.keys(data).sort((a,b)=>data[b]-data[a]);
-  const total = Object.values(data).reduce((a,b)=>a+b,0);
-  const max   = Math.max(...Object.values(data),1);
-  const inner = document.getElementById('prod-rows-drill-inner-'+idx);
-  inner.innerHTML = `<div class="drill-lbl">Investor mix · <strong>${prod}</strong></div>` +
-    keys.map(acct=>{
-      const v=data[acct], pct=(v/total*100).toFixed(0), bar=(v/max*100).toFixed(1);
-      return `<div style="display:grid;grid-template-columns:1fr 140px 60px 44px;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);align-items:center">
-        <span style="font-size:.72rem;font-weight:500">${acct}</span>
-        <div style="height:6px;background:var(--bg);border-radius:3px;overflow:hidden">
-          <div style="height:100%;width:${bar}%;background:#c8813a;border-radius:3px"></div>
-        </div>
-        <span style="font-size:.72rem;text-align:right;font-family:var(--fd)">${fmt(v)}</span>
-        <span style="font-size:.65rem;color:var(--muted);text-align:right">${pct}%</span>
-      </div>`;
-    }).join('');
-  panel.classList.add('open');
-}
-
-function render(rep){
-  const d=rep==='All'?DB.all:{...DB.all,...DB.byRep[rep]};
-  updateKPIs(d.stages,d.total,d.qtd);
+function render(rep) {
+  const d = rep === 'All' ? DB.all : DB.byRep[rep];
+  updateKPIs(d.stages, d.total);
   buildFunnel(d.stages);
-  buildQTDTable(d.stages,d.stagesQTD);
-  buildRepRows();
-  buildProdRows();
-  makeHGroupedBar('qtdChart',STAGES.map(s=>s.replace('Due Diligence ','DD ').replace('Priority Investors','Priority Inv.')),d.stages,d.stagesQTD);
-  const acctK=Object.keys(DB.all.acct);makeDoughnut('acctChart',acctK,acctK.map(k=>DB.all.acct[k]));
-  const cntK=Object.keys(DB.all.country);makeDoughnut('countryChart',cntK,cntK.map(k=>DB.all.country[k]));
+  
+  // QTD Chart (NNM)
+  makeChart('qtdChart', 'bar', ['Q1', 'Q2', 'Q3', 'Q4'], d.stagesQTD, '#243f51');
+  
+  // Doughnuts (verwenden Basisdaten für 'All')
+  const base = DB.all;
+  makeChart('acctChart', 'doughnut', Object.keys(base.acct), Object.values(base.acct), ['#7b3f00', '#a0522d', '#c8813a', '#d4a264', '#e2c49a']);
+  makeChart('prodChart', 'doughnut', Object.keys(base.prod), Object.values(base.prod), ['#375623', '#4e7a30', '#70a94a', '#9dc57a']);
+  makeChart('countryChart', 'doughnut', Object.keys(base.country), Object.values(base.country), ['#243f51', '#3f718a', '#9bbccc']);
+}
 
-  buildHeatmap();
-  buildNNM();
-  filterDeals();
-}
-function setRep(rep){
-  currentRep=rep;
-  document.querySelectorAll('.pill').forEach(b=>b.classList.toggle('active',b.textContent.trim()===rep||(rep==='All'&&b.textContent.trim()==='All Sales')));
-  render(rep);
-}
-document.getElementById('datestamp').textContent=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
 render('All');
 </script>
 </body>
