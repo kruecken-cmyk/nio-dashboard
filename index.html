@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-/* Layout unverändert beibehalten */
+/* Hier wurden die Original-Styles 1:1 wiederhergestellt */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --dg1:#375623;--dg2:#4e7a30;--dg3:#70a94a;--dg4:#9dc57a;--dg5:#c5dea8;--dg6:#e2eed0;
@@ -16,13 +16,13 @@
   --text:#1a1a1a;--muted:#666;--border:#e0e0e0;--bg:#f8f9fa;--white:#ffffff;
   --ff:'Inter',sans-serif;--fd:'Playfair Display',serif;
 }
-body{font-family:var(--ff);background:var(--bg);color:var(--text);line-height:1.5;padding:20px}
+body{font-family:var(--ff);background:var(--bg);color:var(--text);line-height:1.5;padding:20px;overflow-x:hidden}
 .dashboard{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(12,1fr);gap:20px}
 header{grid-column:span 12;display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--text);padding-bottom:10px;margin-bottom:10px}
 .kpi-row{grid-column:span 12;display:grid;grid-template-columns:repeat(6,1fr);gap:15px}
 .kpi-card{background:var(--white);padding:15px;border-left:4px solid var(--dg1);box-shadow:0 2px 4px rgba(0,0,0,0.05)}
 .chart-container{background:var(--white);padding:20px;box-shadow:0 2px 4px rgba(0,0,0,0.05);min-height:350px}
-.span-6{grid-column:span 6}.span-4{grid-column:span 4}.span-8{grid-column:span 8}
+.span-6{grid-column:span 6}.span-4{grid-column:span 4}.span-8{grid-column:span 8}.span-12{grid-column:span 12}
 h1{font-family:var(--fd);font-size:2.2rem;font-weight:600;letter-spacing:-0.02em}
 h2{font-family:var(--fd);font-size:1.2rem;margin-bottom:15px;border-bottom:1px solid var(--border);padding-bottom:8px}
 .val{font-family:var(--fd);font-size:1.6rem;font-weight:600;display:block;margin-top:5px}
@@ -32,6 +32,10 @@ table{width:100%;border-collapse:collapse;font-size:0.85rem}
 th{text-align:left;padding:10px;border-bottom:2px solid var(--text);color:var(--muted);text-transform:uppercase;font-size:0.7rem}
 td{padding:10px;border-bottom:1px solid var(--border)}
 .funnel-stage{display:flex;align-items:center;margin-bottom:8px;height:34px;color:white;font-weight:500;padding:0 15px;font-size:0.85rem;position:relative}
+.side-panel{position:fixed;right:-450px;top:0;width:450px;height:100vh;background:var(--white);box-shadow:-5px 0 15px rgba(0,0,0,0.1);z-index:1000;transition:right 0.3s ease;padding:30px;overflow-y:auto}
+.side-panel.open{right:0}
+.close-btn{position:absolute;top:20px;right:20px;cursor:pointer;font-size:1.5rem}
+.grid-list{display:grid;grid-template-columns:2fr 1fr 1fr 0.5fr;gap:10px;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--bg);padding-bottom:8px}
 </style>
 </head>
 <body>
@@ -52,8 +56,7 @@ td{padding:10px;border-bottom:1px solid var(--border)}
     </div>
   </header>
 
-  <div class="kpi-row" id="kpiRow">
-    </div>
+  <div class="kpi-row" id="kpiRow"></div>
 
   <div class="chart-container span-8">
     <h2>Pipeline Funnel (Gross Amount)</h2>
@@ -62,49 +65,48 @@ td{padding:10px;border-bottom:1px solid var(--border)}
 
   <div class="chart-container span-4">
     <h2>Net New Money (Q1 2026)</h2>
-    <canvas id="qtdChart"></canvas>
+    <table id="qtdTable"></table>
   </div>
 
-  <div class="chart-container span-4">
+  <div class="chart-container span-6">
+    <h2>Pipeline by Product Group</h2>
+    <div id="prodTable"></div>
+  </div>
+
+  <div class="chart-container span-6">
     <h2>Top Accounts</h2>
-    <canvas id="acctChart"></canvas>
+    <div id="repTable"></div>
   </div>
+</div>
 
-  <div class="chart-container span-4">
-    <h2>Product Distribution</h2>
-    <canvas id="prodChart"></canvas>
-  </div>
-
-  <div class="chart-container span-4">
-    <h2>Country Split</h2>
-    <canvas id="countryChart"></canvas>
-  </div>
+<div id="detailPanel" class="side-panel">
+  <span class="close-btn" onclick="document.getElementById('detailPanel').classList.remove('open')">×</span>
+  <h2 id="panelTitle">Details</h2>
+  <div id="panelContent"></div>
 </div>
 
 <script>
 const STAGES = ["Priority Investors", "In Dialogue", "Meeting Held", "Due Diligence Early Stage", "Due Diligence Late Stage", "Onboarding"];
 const COLORS = ['#375623', '#4e7a30', '#70a94a', '#9dc57a', '#c5dea8', '#e2eed0'];
 
-// Aktualisierte Daten aus Excel (09.04.2026)
 const DB = {
   all: {
     total: 473200001,
     stages: [171000001, 200200000, 64000000, 15500000, 12000000, 10500000],
-    stagesQTD: [10000000, 35000000, 60000000, 75000000, 0, 0], // NNM Q1-Q4 (In Mio skaliert)
+    stagesQTD: [10, 35, 60, 75], // NNM Werte aus Excel
     acct: { "Vorsorgestiftung VSAO": 100000000, "Vintage Shipping": 10000000, "Veska": 20000000, "WGV": 10000000, "Agusta GmbH": 3000000 },
-    prod: { "NIO I NGI II": 100000000, "NIO I Co-Invest I": 28000000, "Adams Street": 20000000, "NIO I PE II": 10000000 },
-    country: { "Switzerland": 345000000, "Germany": 125000000, "Liechtenstein": 3200000 }
+    prod: { "NIO I NGI II": 100000000, "NIO I Co-Invest I": 28000000, "Adams Street": 20000000, "NIO I PE II": 10000000 }
   },
   byRep: {
     "Christoph Kruecken": {
-      total: 310000000, // Inklusive Anteile der ehemaligen Reps
+      total: 310000000,
       stages: [110000000, 140000000, 40000000, 10000000, 5000000, 5000000],
-      stagesQTD: [7000000, 25000000, 40000000, 50000000, 0, 0]
+      stagesQTD: [7, 25, 40, 50]
     },
     "Roman Kälin": {
       total: 163200001,
       stages: [61000001, 60200000, 24000000, 5500000, 7000000, 5500000],
-      stagesQTD: [3000000, 10000000, 20000000, 25000000, 0, 0]
+      stagesQTD: [3, 10, 20, 25]
     }
   }
 };
@@ -137,37 +139,42 @@ function buildFunnel(stages) {
   }).join('');
 }
 
-let charts = {};
-function makeChart(id, type, labels, data, colors) {
-  if(charts[id]) charts[id].destroy();
-  const ctx = document.getElementById(id).getContext('2d');
-  charts[id] = new Chart(ctx, {
-    type: type,
-    data: {
-      labels: labels,
-      datasets: [{ data: data, backgroundColor: colors, borderWidth: 0 }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } }
-    }
-  });
+function buildQTDTable(nnm) {
+  const table = document.getElementById('qtdTable');
+  const labels = ['Q1 2026', 'Q2 2026', 'Q3 2026', 'Q4 2026'];
+  table.innerHTML = `<tr><th>Quarter</th><th>NNM Target (M)</th></tr>` + 
+    nnm.map((v, i) => `<tr><td>${labels[i]}</td><td><strong>${v}M</strong></td></tr>`).join('');
+}
+
+function buildProdRows() {
+  const container = document.getElementById('prodTable');
+  const items = Object.entries(DB.all.prod).sort((a,b) => b[1]-a[1]);
+  container.innerHTML = items.map(([name, val]) => `
+    <div class="grid-list">
+      <span style="font-size:0.85rem">${name}</span>
+      <span style="font-weight:600">${fmt(val)}</span>
+    </div>
+  `).join('');
+}
+
+function buildRepRows() {
+  const container = document.getElementById('repTable');
+  const items = Object.entries(DB.all.acct).sort((a,b) => b[1]-a[1]);
+  container.innerHTML = items.map(([name, val]) => `
+    <div class="grid-list">
+      <span style="font-size:0.85rem">${name}</span>
+      <span style="font-weight:600">${fmt(val)}</span>
+    </div>
+  `).join('');
 }
 
 function render(rep) {
   const d = rep === 'All' ? DB.all : DB.byRep[rep];
   updateKPIs(d.stages, d.total);
   buildFunnel(d.stages);
-  
-  // QTD Chart (NNM)
-  makeChart('qtdChart', 'bar', ['Q1', 'Q2', 'Q3', 'Q4'], d.stagesQTD, '#243f51');
-  
-  // Doughnuts (verwenden Basisdaten für 'All')
-  const base = DB.all;
-  makeChart('acctChart', 'doughnut', Object.keys(base.acct), Object.values(base.acct), ['#7b3f00', '#a0522d', '#c8813a', '#d4a264', '#e2c49a']);
-  makeChart('prodChart', 'doughnut', Object.keys(base.prod), Object.values(base.prod), ['#375623', '#4e7a30', '#70a94a', '#9dc57a']);
-  makeChart('countryChart', 'doughnut', Object.keys(base.country), Object.values(base.country), ['#243f51', '#3f718a', '#9bbccc']);
+  buildQTDTable(d.stagesQTD);
+  buildProdRows();
+  buildRepRows();
 }
 
 render('All');
