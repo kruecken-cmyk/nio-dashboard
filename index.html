@@ -32,7 +32,7 @@ header{background:var(--bg1);padding:40px 52px 36px;display:grid;grid-template-c
 .pill:hover{border-color:var(--green);color:var(--green);background:var(--green-lt)}
 .pill.active{background:var(--green);border-color:var(--green);color:#fff}
 main{padding:36px 52px 64px;display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
-.kpi-strip{grid-column:1/-1;display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
+.kpi-strip{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 .kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px 26px 20px;box-shadow:var(--sh);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
 .kpi:hover{transform:translateY(-2px);box-shadow:0 4px 24px rgba(0,0,0,.08)}
 .kpi-bar{position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:var(--r) 0 0 var(--r)}
@@ -45,10 +45,6 @@ main{padding:36px 52px 64px;display:grid;grid-template-columns:repeat(12,1fr);ga
 .kpi-val{font-family:var(--fd);font-size:2rem;font-weight:600;line-height:1;letter-spacing:-.02em}
 .kpi-sub{font-size:.7rem;color:var(--muted);margin-top:7px}
 .badge{display:inline-block;font-size:.6rem;font-weight:600;padding:2px 6px;border-radius:4px;background:var(--gold-lt);color:var(--gold);margin-left:5px;vertical-align:middle}
-.nnm-bar-wrap{margin-top:10px}
-.nnm-track{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-top:6px}
-.nnm-fill{height:100%;border-radius:3px;background:var(--gold);width:0;transition:width 1s cubic-bezier(.4,0,.2,1)}
-.nnm-labels{display:flex;justify-content:space-between;font-size:.62rem;color:var(--muted);margin-top:4px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:28px 30px;box-shadow:var(--sh);display:flex;flex-direction:column}
 .ch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px}
 .eye{font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-bottom:5px}
@@ -90,7 +86,7 @@ main{padding:36px 52px 64px;display:grid;grid-template-columns:repeat(12,1fr);ga
 .hm-cell{display:inline-flex;align-items:center;justify-content:center;width:100%;height:26px;border-radius:5px;font-size:.72rem;font-weight:500;transition:transform .15s;cursor:default}
 .hm-cell:hover{transform:scale(1.1)}
 .hm-empty{color:var(--border)}
-.nnm-section{grid-column:span 12;display:grid;grid-template-columns:2fr 1fr;gap:18px}
+
 .deal-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 .deal-filter{border:1px solid var(--border);background:var(--bg);color:var(--muted);font-family:var(--fb);font-size:.72rem;padding:5px 12px;border-radius:6px;cursor:pointer;transition:all .15s}
 .deal-filter.active{background:var(--dg1);border-color:var(--dg1);color:#fff}
@@ -139,6 +135,17 @@ table.dt tr:hover td{background:var(--surface2)}
 .drill-qtd{font-size:.72rem;text-align:right;color:var(--dg1);font-weight:600}
 .drill-gap{font-size:.72rem;text-align:right;font-weight:600}
 .drill-lbl{font-size:.63rem;color:var(--muted);margin-bottom:8px}
+/* Doughnut drill panel */
+.dough-drill{margin-top:16px;border-top:2px solid var(--border);padding-top:14px;display:none}
+.dough-drill.open{display:block}
+.dough-drill-title{font-size:.65rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.dough-drill-title button{border:none;background:none;cursor:pointer;font-size:.75rem;color:var(--muted);padding:2px 6px;border-radius:4px}
+.dough-drill-title button:hover{background:var(--bg);color:var(--text)}
+.dough-drill-row{display:grid;grid-template-columns:1fr 80px 50px;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);align-items:center}
+.dough-drill-row:last-child{border-bottom:none}
+.dough-bar-track{height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
+.dough-bar-fill{height:100%;border-radius:3px}
+.hint{font-size:.62rem;color:var(--muted);font-style:italic;margin-top:6px;text-align:center}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 .kpi{animation:fadeUp .55s ease both}
 .kpi:nth-child(1){animation-delay:.04s}.kpi:nth-child(2){animation-delay:.09s}
@@ -151,7 +158,6 @@ table.dt tr:hover td{background:var(--surface2)}
   main{padding:18px 20px 48px;gap:14px}
   .c7,.c5,.c6,.c8,.c4{grid-column:span 12}
   .kpi-strip{grid-template-columns:repeat(2,1fr)}
-  .nnm-section{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -177,21 +183,25 @@ table.dt tr:hover td{background:var(--surface2)}
     <div class="kpi"><div class="kpi-bar"></div><div class="kpi-lbl">Quarter-to-Date</div><div class="kpi-val" id="kpi-qtd">—</div><div class="kpi-sub">QTD pipeline <span class="badge">QTD</span></div></div>
     <div class="kpi"><div class="kpi-bar"></div><div class="kpi-lbl">In Due Diligence</div><div class="kpi-val" id="kpi-dd">—</div><div class="kpi-sub">Early + Late stage combined</div></div>
     <div class="kpi"><div class="kpi-bar"></div><div class="kpi-lbl">Onboarding</div><div class="kpi-val" id="kpi-onboard">—</div><div class="kpi-sub">Near close</div></div>
-    <div class="kpi" id="kpi-nnm-card"><div class="kpi-bar"></div><div class="kpi-lbl">NNM Target 2026</div><div class="kpi-val">€75M</div><div class="kpi-sub">Full year target 2026</div>
-      <div class="nnm-bar-wrap" style="margin-top:12px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
-          <span style="font-size:.62rem;color:var(--muted)">Progress</span>
-          <span style="font-size:.68rem;font-weight:600;color:var(--gold)">€2.5M won</span>
-        </div>
-        <div style="height:10px;background:var(--bg);border-radius:5px;overflow:hidden;border:1px solid var(--border)">
-          <div id="nnm-fill" style="height:100%;border-radius:5px;background:linear-gradient(90deg,var(--gold),#d4a264);width:0%;transition:width 1.2s cubic-bezier(.4,0,.2,1)"></div>
-        </div>
         <div style="display:flex;justify-content:space-between;font-size:.62rem;color:var(--muted);margin-top:4px">
           <span>€0</span><span style="color:var(--gold);font-weight:600">3.3%</span><span>€75M</span>
         </div>
       </div>
     </div>
   </div>
+
+  <div class="div"><span>Pipeline Movement · vs. Last Report (9 April 2026)</span></div>
+  <div class="card c12" style="animation-delay:.25s" id="movement-card">
+    <div class="ch">
+      <div>
+        <div class="eye">Stage Changes</div>
+        <div class="ctitle">What Moved This Week</div>
+      </div>
+      <div style="font-size:.72rem;color:var(--muted);font-style:italic;align-self:center">Compared to last report · 9 April 2026</div>
+    </div>
+    <div id="movement-wrap"></div>
+  </div>
+
   <div class="div"><span>Pipeline Breakdown</span></div>
   <div class="card c5" style="animation-delay:.28s">
     <div class="ch"><div><div class="eye">Deal Stage</div><div class="ctitle">Pipeline Funnel</div></div></div>
@@ -230,10 +240,14 @@ table.dt tr:hover td{background:var(--surface2)}
   <div class="card c6" style="animation-delay:.47s">
     <div class="ch"><div><div class="eye">Investor Mix</div><div class="ctitle">Pipeline by Account Type</div></div></div>
     <div class="cw-sm"><canvas id="acctChart"></canvas></div>
+    <p class="hint">Click a segment to see stage breakdown</p>
+    <div class="dough-drill" id="acct-drill"></div>
   </div>
   <div class="card c6" style="animation-delay:.51s">
     <div class="ch"><div><div class="eye">Geography</div><div class="ctitle">Pipeline by Country</div></div></div>
     <div class="cw-sm"><canvas id="countryChart"></canvas></div>
+    <p class="hint">Click a segment to see investor type breakdown</p>
+    <div class="dough-drill" id="country-drill"></div>
   </div>
   <div class="div"><span>Product Distribution</span></div>
   <div class="card c12" style="animation-delay:.55s">
@@ -251,21 +265,16 @@ table.dt tr:hover td{background:var(--surface2)}
     <div class="ch"><div><div class="eye">Geographic Breakdown</div><div class="ctitle">Pipeline Value by Country &amp; Account Type (€M)</div></div></div>
     <div class="heatmap"><div id="heatmap-wrap"></div></div>
   </div>
-  <div class="div"><span>NNM Target vs Pipeline · 2026</span></div>
-  <div class="nnm-section" style="animation-delay:.63s">
-    <div class="card">
-      <div class="ch"><div><div class="eye">New Money Target</div><div class="ctitle">NNM Quarterly Targets 2026</div></div></div>
-      <div class="cw" style="min-height:220px"><canvas id="nnmChart"></canvas></div>
+      
     </div>
-    <div class="card">
-      <div class="ch"><div><div class="eye">Target Summary</div><div class="ctitle">2026 NNM Breakdown</div></div></div>
+    </div>
       <div style="flex:1;display:flex;flex-direction:column;gap:0">
         <div style="display:grid;grid-template-columns:1fr 80px 80px;gap:6px;padding-bottom:10px;border-bottom:2px solid var(--border);margin-bottom:2px">
           <span style="font-size:.63rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:600">Quarter</span>
           <span style="font-size:.63rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:600;text-align:right">Target</span>
           <span style="font-size:.63rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:600;text-align:right">Won</span>
         </div>
-        <div id="nnm-table"></div>
+        
         <div style="display:grid;grid-template-columns:1fr 80px 80px;gap:6px;padding-top:12px;border-top:2px solid var(--border);margin-top:4px">
           <span style="font-size:.79rem;font-weight:600">Full Year</span>
           <span style="font-family:var(--fd);font-size:.9rem;text-align:right;font-weight:600">€75M</span>
@@ -309,47 +318,79 @@ const STAGES=["Priority Investors","In Dialogue","Meeting Held","Due Diligence E
 const STAGE_COLORS=['#375623','#4e7a30','#2e5369','#c8813a','#d4a264','#7b3f00'];
 const PAL=['#375623','#243f51','#c8813a','#7b3f00','#4e7a30','#2e5369','#a0522d','#3f718a','#70a94a','#d4a264','#9bbccc','#9dc57a'];
 
-// ── DATA — refreshed DD_Weekly_09_04_2026 · corrections applied (Guido+Marc→CK, DD=25M, Onboarding=2.5M) ──
+// ── DATA · 24 April 2026 ──────────────────────────────────────────────────
 const DB={
   all:{
-    stages:[171,200.2,64,13,12,2.5],
+    stages:[171,200.2,64,16,12,2.5],
     stagesQTD:[149,51,15,0.5,10,0],
-    rep:{"Christoph Kruecken":371.2,"Roman Kälin":91.5},
+    rep:{"Christoph Kruecken":381.2,"Roman Kälin":91.5},
     repQTD:{"Christoph Kruecken":164,"Roman Kälin":61.5},
-    acct:{"Insti-Pension":175,"Multi Family Office":166.5,"Independent Asset Manager (IAM)":70,"Single Family Office":30.7,"Insti-Insurance":25,"Foundation":13,"Wealth Manager":9,"Advisor & Consultants":9,"Bank Private":3,"Private (HNW)":1},
-    country:{"Switzerland":363,"Germany":133.2,"Liechtenstein":5,"Hungary":1},
-    prod:{"Contacted":135,"NIO I NGI II":100,"NIO I PE II":79.5,"NIO I NGD VI":37.2,"Adams Street I GSF VIII":33,"CIP I CI VI":32,"NIO I Co-Invest I":31,"NREP I NSF VI":30.5,"General Dialogue":24},
-    total:462.7,qtd:225.5
+    acct:{"Multi Family Office":159.5,"Insti-Pension":173.0,"Independent Asset Manager (IAM)":63.0,"Single Family Office":35.7,"Insti-Insurance":20.0,"Foundation":10.0,"Wealth Manager":9.0,"Advisor & Consultants":9.0,"Bank Private":3.0,"Private (HNW)":2.5},
+    country:{"Switzerland":363.5,"Germany":115.2,"Liechtenstein":5.0,"Hungary":1.0},
+    prod:{"Contacted":135,"NIO I NGI II":100,"NIO I PE II":64,"CIP I CI VI":41,"NIO I NGD VI":38.7,"NREP I NSF VI":30.5,"NIO I Co-Invest I":28,"General Dialogue":26,"Adams Street I GSF VIII":20},
+    total:465.7,qtd:225.5
   },
   byRep:{
-    "Christoph Kruecken":{stages:[111,195.2,38,12.5,12,2.5],stagesQTD:[94,51,9,0,10,0],total:371.2,qtd:164},
-    "Roman Kälin":{stages:[60,5,26,0.5,0,0],stagesQTD:[55,0,6,0.5,0,0],total:91.5,qtd:61.5}
+    "Christoph Kruecken":{stages:[91,115.2,52,4,22,2.5],stagesQTD:[94,51,9,0,10,0],total:284.7,qtd:164},
+    "Roman Kälin":{stages:[57,18,26.5,0.5,0,0],stagesQTD:[55,0,6,0.5,0,0],total:102,qtd:61.5}
   }
 };
 
 const COUNTRY_ACCT={
-  "Switzerland":{"Insti-Pension":169,"Multi Family Office":115.5,"Independent Asset Manager (IAM)":46,"Single Family Office":15.5,"Insti-Insurance":10,"Advisor & Consultants":6,"Wealth Manager":1},
-  "Germany":{"Multi Family Office":49,"Independent Asset Manager (IAM)":21,"Single Family Office":15.2,"Insti-Insurance":15,"Foundation":13,"Wealth Manager":8,"Insti-Pension":6,"Bank Private":3,"Advisor & Consultants":3},
-  "Liechtenstein":{"Independent Asset Manager (IAM)":3,"Multi Family Office":2},
-  "Hungary":{"Private (HNW)":1}
+  "Switzerland":{"Multi Family Office":114.5,"Insti-Pension":168.0,"Independent Asset Manager (IAM)":47.0,"Single Family Office":15.5,"Insti-Insurance":10.0,"Advisor & Consultants":6.0,"Private (HNW)":1.5,"Wealth Manager":1.0},
+  "Germany":{"Multi Family Office":43.0,"Single Family Office":20.2,"Independent Asset Manager (IAM)":13.0,"Insti-Insurance":10.0,"Foundation":10.0,"Insti-Pension":5.0,"Wealth Manager":8.0,"Advisor & Consultants":3.0,"Bank Private":3.0},
+  "Liechtenstein":{"Independent Asset Manager (IAM)":3.0,"Multi Family Office":2.0},
+  "Hungary":{"Private (HNW)":1.0}
 };
 const ALL_ACCT_TYPES=["Advisor & Consultants","Bank Private","Foundation","Independent Asset Manager (IAM)","Insti-Insurance","Insti-Pension","Multi Family Office","Private (HNW)","Single Family Office","Wealth Manager"];
 
 const STAGE_ACCT={
-  "Priority Investors":{"Multi Family Office":70,"Independent Asset Manager (IAM)":33,"Insti-Pension":23,"Single Family Office":18,"Insti-Insurance":5,"Wealth Manager":4,"Advisor & Consultants":3,"Foundation":3},
-  "In Dialogue":{"Multi Family Office":73,"Insti-Insurance":20,"Independent Asset Manager (IAM)":16,"Insti-Pension":15,"Foundation":10,"Single Family Office":9.2},
-  "Meeting Held":{"Insti-Pension":127,"Multi Family Office":19.5,"Independent Asset Manager (IAM)":11,"Advisor & Consultants":6,"Wealth Manager":5,"Single Family Office":3,"Bank Private":3,"Private (HNW)":1},
-  "Due Diligence Early Stage":{"Multi Family Office":1,"Single Family Office":0.5},
-  "Due Diligence Late Stage":{"Independent Asset Manager (IAM)":10,"Multi Family Office":2},
-  "Onboarding":{"Insti-Pension":10,"Multi Family Office":1}
+  "Priority Investors":{"Multi Family Office":70,"Independent Asset Manager (IAM)":33,"Insti-Pension":23,"Single Family Office":15,"Wealth Manager":4,"Advisor & Consultants":3},
+  "In Dialogue":{"Multi Family Office":71,"Insti-Insurance":20,"Insti-Pension":15,"Single Family Office":11.2,"Foundation":10,"Independent Asset Manager (IAM)":6},
+  "Meeting Held":{"Insti-Pension":125,"Multi Family Office":15.5,"Independent Asset Manager (IAM)":14,"Single Family Office":9,"Advisor & Consultants":6,"Wealth Manager":5,"Private (HNW)":1},
+  "Due Diligence Early Stage":{"Bank Private":3,"Single Family Office":0.5},
+  "Due Diligence Late Stage":{"Independent Asset Manager (IAM)":10,"Insti-Pension":10,"Multi Family Office":2},
+  "Onboarding":{"Multi Family Office":1,"Private (HNW)":1.5}
 };
 
-const NNM={quarters:["Q1 2026","Q2 2026","Q3 2026","Q4 2026"],targets:[10,35,60,75],won:[2.5,null,null,null]};
-const NNM_WON_TOTAL=2.5, NNM_TARGET_TOTAL=75;
+// Account type → stage breakdown (for doughnut drill-down)
+const ACCT_BY_STAGE={
+  "Multi Family Office":{"Priority Investors":70,"In Dialogue":71,"Meeting Held":15.5,"Due Diligence Late Stage":2,"Onboarding":1},
+  "Insti-Pension":{"Priority Investors":23,"In Dialogue":15,"Meeting Held":125,"Due Diligence Late Stage":10},
+  "Independent Asset Manager (IAM)":{"Priority Investors":33,"In Dialogue":6,"Meeting Held":14,"Due Diligence Late Stage":10},
+  "Single Family Office":{"Priority Investors":15,"In Dialogue":11.2,"Meeting Held":9,"Due Diligence Early Stage":0.5},
+  "Insti-Insurance":{"In Dialogue":20},
+  "Foundation":{"In Dialogue":10},
+  "Wealth Manager":{"Priority Investors":4,"Meeting Held":5},
+  "Advisor & Consultants":{"Priority Investors":3,"Meeting Held":6},
+  "Bank Private":{"Due Diligence Early Stage":3},
+  "Private (HNW)":{"Meeting Held":1,"Onboarding":1.5}
+};
 
-const DEALS=[{"title":"Prime Partners","owner":"Christoph Kruecken","value":1.0,"stage":"Due Diligence Early Stage","acctType":"Multi Family Office","country":"Switzerland","product":"NIO I NGD VI"},{"title":"Vorsorgestiftung VSAO","owner":"Roman Kälin","value":100.0,"stage":"Meeting Held","acctType":"Insti-Pension","country":"Switzerland","product":"NIO I NGI II"},{"title":"Lakefield Partners AG","owner":"Roman Kälin","value":0.5,"stage":"Meeting Held","acctType":"Multi Family Office","country":"Switzerland","product":"NIO I PE II"},{"title":"Helbling und Partner","owner":"Roman Kälin","value":3.0,"stage":"Meeting Held","acctType":"Multi Family Office","country":"Switzerland","product":"NIO I Co-Invest I"},{"title":"RIANTA Capital Zurich AG","owner":"Christoph Kruecken","value":1.0,"stage":"Priority Investors","acctType":"Single Family Office","country":"Switzerland","product":"Contacted"},{"title":"Cambiata Schweiz AG","owner":"Roman Kälin","value":3.0,"stage":"In Dialogue","acctType":"Single Family Office","country":"Switzerland","product":"NIO I Co-Invest I"},{"title":"Galencia Pensionskasse","owner":"Christoph Kruecken","value":5.0,"stage":"Priority Investors","acctType":"Insti-Pension","country":"Switzerland","product":"CIP I CI VI"},{"title":"FINVIA Family Office GmbH","owner":"Christoph Kruecken","value":3.0,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Germany","product":"NIO I Co-Invest I"},{"title":"LINVO AG","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Alvier Asset Management AG","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Liechtenstein","product":"General Dialogue"},{"title":"LeoVest Partners AG","owner":"Roman Kälin","value":3.0,"stage":"Meeting Held","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Rolem Invest AG","owner":"Roman Kälin","value":0.5,"stage":"Due Diligence Early Stage","acctType":"Single Family Office","country":"Switzerland","product":"NREP I NSF VI"},{"title":"Prospera-Invest Vermögensverwaltung","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Arxada AG","owner":"Christoph Kruecken","value":5.0,"stage":"In Dialogue","acctType":"Insti-Pension","country":"Switzerland","product":"NIO I NGD VI"},{"title":"Constanter","owner":"Roman Kälin","value":3.0,"stage":"Priority Investors","acctType":"Single Family Office","country":"Switzerland","product":"Contacted"},{"title":"Dominicé","owner":"Roman Kälin","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"EMC Gestion de Fortune","owner":"Roman Kälin","value":3.0,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Martagon Family Office","owner":"Christoph Kruecken","value":1.0,"stage":"Meeting Held","acctType":"Independent Asset Manager (IAM)","country":"Germany","product":"NREP I NSF VI"},{"title":"Martagon Family Office","owner":"Christoph Kruecken","value":1.0,"stage":"Meeting Held","acctType":"Multi Family Office","country":"Germany","product":"CIP I CI VI"},{"title":"Hanitax GmbH","owner":"Christoph Kruecken","value":1.0,"stage":"Meeting Held","acctType":"Multi Family Office","country":"Germany","product":"NIO I NGD VI"},{"title":"Solvia Vermögensverwaltung","owner":"Christoph Kruecken","value":1.0,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Germany","product":"NREP I NSF VI"},{"title":"Solvia Vermögensverwaltung","owner":"Christoph Kruecken","value":1.0,"stage":"Meeting Held","acctType":"Multi Family Office","country":"Germany","product":"CIP I CI VI"},{"title":"Remaco Asset Management AG","owner":"Roman Kälin","value":3.0,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Rodenstock Gesellschaft für Familienunternehmen","owner":"Christoph Kruecken","value":1.0,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Germany","product":"General Dialogue"},{"title":"AV Private Equity GmbH & Co. KG","owner":"Christoph Kruecken","value":1.0,"stage":"Meeting Held","acctType":"Insti-Pension","country":"Germany","product":"NREP I NSF VI"},{"title":"Alpinum Investment Management AG","owner":"Roman Kälin","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Crossinvest","owner":"Roman Kälin","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Global Gate Asset Management","owner":"Roman Kälin","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Alpha Leonis Partners AG","owner":"Roman Kälin","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"MEEDER & SEIFER GmbH","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"Contacted"},{"title":"WEGA Invest GmbH","owner":"Christoph Kruecken","value":1.0,"stage":"Meeting Held","acctType":"Multi Family Office","country":"Germany","product":"CIP I CI VI"},{"title":"Corum Vermögensverwaltung AG","owner":"Christoph Kruecken","value":1.0,"stage":"Meeting Held","acctType":"Insti-Pension","country":"Switzerland","product":"NIO I Co-Invest I"},{"title":"Parkview Invest AG","owner":"Roman Kälin","value":1.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Rothorn Capital","owner":"Roman Kälin","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Pensionskasse der Technischen Verbände SIA STV BSA FSAI USIC","owner":"Roman Kälin","value":3.0,"stage":"Priority Investors","acctType":"Insti-Pension","country":"Switzerland","product":"Contacted"},{"title":"SAYANO Family Office","owner":"Roman Kälin","value":1.0,"stage":"Priority Investors","acctType":"Single Family Office","country":"Switzerland","product":"Contacted"},{"title":"Cottonfield FO AG","owner":"Roman Kälin","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Jakober Partner","owner":"Roman Kälin","value":1.0,"stage":"Priority Investors","acctType":"Wealth Manager","country":"Switzerland","product":"Contacted"},{"title":"SWIX Family Office","owner":"Roman Kälin","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Spectrum Value Management","owner":"Roman Kälin","value":3.0,"stage":"Priority Investors","acctType":"Single Family Office","country":"Switzerland","product":"Contacted"},{"title":"Schindler Pensionskasse","owner":"Roman Kälin","value":5.0,"stage":"Priority Investors","acctType":"Insti-Pension","country":"Switzerland","product":"Contacted"},{"title":"Pensionskasse Stadt Luzern","owner":"Roman Kälin","value":5.0,"stage":"Priority Investors","acctType":"Insti-Pension","country":"Switzerland","product":"Contacted"},{"title":"Solarkit","owner":"Christoph Kruecken","value":1.0,"stage":"Meeting Held","acctType":"Private (HNW)","country":"Hungary","product":"NIO I PE II"},{"title":"Family Office der Frankfurter Bankgesellschaft AG","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"CIP I CI VI"},{"title":"Earl Capital","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Serenis Family Capital","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"WSH Family Office","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"Contacted"},{"title":"Frame Asset Management","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Investas AG","owner":"Christoph Kruecken","value":3.0,"stage":"In Dialogue","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Wirtgen Invest Holding","owner":"Christoph Kruecken","value":1.0,"stage":"Priority Investors","acctType":"Single Family Office","country":"Germany","product":"Contacted"},{"title":"HBK Investments Advisory","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Cape May Capital Advisors","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"Contacted"},{"title":"Panther Bay Capital","owner":"Christoph Kruecken","value":1.0,"stage":"Priority Investors","acctType":"Single Family Office","country":"Germany","product":"Contacted"},{"title":"Primwest SA","owner":"Christoph Kruecken","value":1.0,"stage":"Priority Investors","acctType":"Single Family Office","country":"Switzerland","product":"Contacted"},{"title":"Brainvest Wealth Management","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"WAAM Solutions","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Alexandre Gulino","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Bluecap","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"FOS Associates","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Advisor & Consultants","country":"Switzerland","product":"Contacted"},{"title":"Novethos Family Office","owner":"Christoph Kruecken","value":3.0,"stage":"Meeting Held","acctType":"Multi Family Office","country":"Germany","product":"CIP I CI VI"},{"title":"OHM CAPITAL","owner":"Christoph Kruecken","value":3.0,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Germany","product":"NIO I NGD VI"},{"title":"Einhorn Verwaltungsgesellschaft mbH","owner":"Christoph Kruecken","value":1.0,"stage":"In Dialogue","acctType":"Single Family Office","country":"Germany","product":"General Dialogue"},{"title":"Aurea Global Investments","owner":"Christoph Kruecken","value":3.0,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Switzerland","product":"NIO I NGD VI"},{"title":"Münster Stegmaier Rombach Family Office GmbH","owner":"Christoph Kruecken","value":1.0,"stage":"Priority Investors","acctType":"Single Family Office","country":"Germany","product":"Contacted"},{"title":"Lars Hagedorn","owner":"Christoph Kruecken","value":1.0,"stage":"Priority Investors","acctType":"Single Family Office","country":"Switzerland","product":"Contacted"},{"title":"WM Capital","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"DR. HELLERICH & CO GmbH","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"Contacted"},{"title":"TASK Wealth Management","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"Contacted"},{"title":"Juno Family Office lead","owner":"Christoph Kruecken","value":1.0,"stage":"In Dialogue","acctType":"Single Family Office","country":"Germany","product":"Contacted"},{"title":"Honestus Family Office AG","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Switzerland","product":"Contacted"},{"title":"Capitell Vermögens-Management AG","owner":"Christoph Kruecken","value":3.0,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Germany","product":"General Dialogue"},{"title":"Agusta GmbH","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"Contacted"},{"title":"Comes Family Office","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"Contacted"},{"title":"Maryland GmbH","owner":"Christoph Kruecken","value":1.0,"stage":"In Dialogue","acctType":"Single Family Office","country":"Germany","product":"General Dialogue"},{"title":"maxingvest GmbH & Co. KGaA","owner":"Christoph Kruecken","value":1.0,"stage":"In Dialogue","acctType":"Single Family Office","country":"Germany","product":"General Dialogue"},{"title":"Capella Vermögensverwaltungs GmbH","owner":"Christoph Kruecken","value":1.0,"stage":"Meeting Held","acctType":"Single Family Office","country":"Germany","product":"NIO I Co-Invest I"},{"title":"Kontora Family Office","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"CIP I CI VI"},{"title":"Aion Wealth Partners","owner":"Christoph Kruecken","value":3.0,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Switzerland","product":"General Dialogue"},{"title":"Prime Partners","owner":"Christoph Kruecken","value":10.0,"stage":"Due Diligence Late Stage","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"NIO I NGD VI"},{"title":"Amadeus Capital SA","owner":"Christoph Kruecken","value":3.0,"stage":"In Dialogue","acctType":"Independent Asset Manager (IAM)","country":"Switzerland","product":"General Dialogue"},{"title":"Profunda Verwaltungs-GmbH","owner":"Christoph Kruecken","value":1.0,"stage":"Priority Investors","acctType":"Single Family Office","country":"Germany","product":"Contacted"},{"title":"Henkel Family Office","owner":"Christoph Kruecken","value":1.0,"stage":"In Dialogue","acctType":"Single Family Office","country":"Germany","product":"General Dialogue"},{"title":"Bitburger Holding","owner":"Christoph Kruecken","value":1.0,"stage":"Priority Investors","acctType":"Single Family Office","country":"Germany","product":"General Dialogue"},{"title":"iAccess Partners","owner":"Christoph Kruecken","value":3.0,"stage":"Meeting Held","acctType":"Advisor & Consultants","country":"Switzerland","product":"NIO I PE II"},{"title":"DBU Deutsche Bundesstiftung Umwelt","owner":"Christoph Kruecken","value":10.0,"stage":"In Dialogue","acctType":"Foundation","country":"Germany","product":"CIP I CI VI"},{"title":"SONNTAG FAMILY OFFICE GMBH","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"Contacted"},{"title":"Vermögenskultur AG","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Multi Family Office","country":"Germany","product":"Contacted"},{"title":"Laureus AG Privat Finanz","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Wealth Manager","country":"Germany","product":"Contacted"},{"title":"Punica Invest","owner":"Christoph Kruecken","value":5.0,"stage":"Meeting Held","acctType":"Independent Asset Manager (IAM)","country":"Germany","product":"NIO I NGD VI"},{"title":"Hamburger Pensionsverwaltung (HAPEV)","owner":"Christoph Kruecken","value":5.0,"stage":"Meeting Held","acctType":"Insti-Pension","country":"Germany","product":"CIP I CI VI"},{"title":"Blue House Group","owner":"Christoph Kruecken","value":50.0,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Switzerland","product":"NIO I PE II"},{"title":"Marcard Stein & Co.","owner":"Christoph Kruecken","value":3.0,"stage":"Meeting Held","acctType":"Bank Private","country":"Germany","product":"NREP I NSF VI"},{"title":"Promea Pensionskasse","owner":"Roman Kälin","value":5.0,"stage":"Priority Investors","acctType":"Insti-Pension","country":"Switzerland","product":"NIO I PE II"},{"title":"FO Trust GmbH","owner":"Christoph Kruecken","value":1.0,"stage":"Onboarding","acctType":"Multi Family Office","country":"Germany","product":"NIO I NGD VI"},{"title":"Astraia Family Office","owner":"Christoph Kruecken","value":3.0,"stage":"Meeting Held","acctType":"Multi Family Office","country":"Switzerland","product":"General Dialogue"},{"title":"ALSKA PK / Prevanto","owner":"Roman Kälin","value":5.0,"stage":"In Dialogue","acctType":"Insti-Pension","country":"Switzerland","product":"NIO I Co-Invest I"},{"title":"HRK Lunis Vermögensmanagement deal","owner":"Christoph Kruecken","value":10.0,"stage":"In Dialogue","acctType":"Independent Asset Manager (IAM)","country":"Germany","product":"NIO I PE II"},{"title":"Gryth Group AG","owner":"Christoph Kruecken","value":1.0,"stage":"Meeting Held","acctType":"Single Family Office","country":"Switzerland","product":"NIO I Co-Invest I"},{"title":"Belvedere Asset Management","owner":"Christoph Kruecken","value":3.0,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Switzerland","product":"General Dialogue"},{"title":"Zinke MFO deal","owner":"Christoph Kruecken","value":0.2,"stage":"In Dialogue","acctType":"Single Family Office","country":"Germany","product":"NIO I NGD VI"},{"title":"Hottinger","owner":"Christoph Kruecken","value":3.0,"stage":"In Dialogue","acctType":"Multi Family Office","country":"Switzerland","product":"NIO I Co-Invest I"},{"title":"GVO Advisory Management","owner":"Christoph Kruecken","value":1.0,"stage":"In Dialogue","acctType":"Single Family Office","country":"Switzerland","product":"NIO I Co-Invest I"},{"title":"Veska - Private Equity II","owner":"Roman Kälin","value":10.0,"stage":"Meeting Held","acctType":"Insti-Pension","country":"Switzerland","product":"NIO I PE II"},{"title":"Veska - Co-Investment Fund","owner":"Roman Kälin","value":10.0,"stage":"Meeting Held","acctType":"Insti-Pension","country":"Switzerland","product":"NIO I Co-Invest I"},{"title":"Pensionskasse Manor","owner":"Christoph Kruecken","value":5.0,"stage":"In Dialogue","acctType":"Insti-Pension","country":"Switzerland","product":"NIO I NGD VI"},{"title":"Vintage Shipping & Trading","owner":"Christoph Kruecken","value":10.0,"stage":"Onboarding","acctType":"Insti-Pension","country":"Switzerland","product":"Adams Street I GSF VIII"},{"title":"WGV Württembergische Gemeinde-Versicherung SFF I","owner":"Christoph Kruecken","value":10.0,"stage":"In Dialogue","acctType":"Insti-Insurance","country":"Germany","product":"Adams Street I GSF VIII"},{"title":"Amana Family Office","owner":"Christoph Kruecken","value":3.0,"stage":"Meeting Held","acctType":"Multi Family Office","country":"Switzerland","product":"NIO I NGD VI"},{"title":"Helvetia Insurance Switzerland deal","owner":"Roman Kälin","value":10.0,"stage":"In Dialogue","acctType":"Insti-Insurance","country":"Switzerland","product":"NREP I NSF VI"},{"title":"Alte Leipziger Trust Investment GmbH lead","owner":"Christoph Kruecken","value":5.0,"stage":"Priority Investors","acctType":"Insti-Insurance","country":"Germany","product":"Adams Street I GSF VIII"},{"title":"Max Planck Foundation","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Foundation","country":"Germany","product":"Adams Street I GSF VIII"},{"title":"FOCAM AG","owner":"Christoph Kruecken","value":3.0,"stage":"Priority Investors","acctType":"Single Family Office","country":"Germany","product":"Adams Street I GSF VIII"},{"title":"Nautilus Wealth Management AG","owner":"Christoph Kruecken","value":2.0,"stage":"Due Diligence Late Stage","acctType":"Multi Family Office","country":"Liechtenstein","product":"Adams Street I GSF VIII"},{"title":"WGD Management GmbH (Dyckerhoff) deal","owner":"Christoph Kruecken","value":1.0,"stage":"Meeting Held","acctType":"Single Family Office","country":"Germany","product":"NREP I NSF VI"},{"title":"Helaba Invest Kapitalanlagegesellschaft mbH deal","owner":"Christoph Kruecken","value":5.0,"stage":"Meeting Held","acctType":"Wealth Manager","country":"Germany","product":"NREP I NSF VI"},{"title":"AM Alpha (Lemke auch BVV Advisory!)","owner":"Christoph Kruecken","value":3.0,"stage":"Meeting Held","acctType":"Advisor & Consultants","country":"Germany","product":"NREP I NSF VI"},{"title":"Becken Holding GmbH deal","owner":"Christoph Kruecken","value":5.0,"stage":"Meeting Held","acctType":"Independent Asset Manager (IAM)","country":"Germany","product":"NREP I NSF VI"}];
+const DEALS=[{"title": "Agusta GmbH", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Germany", "product": "Contacted"}, {"title": "Aion Wealth Partners", "owner": "Christoph Kruecken", "value": 3.0, "stage": "In Dialogue", "acctType": "Multi Family Office", "country": "Switzerland", "product": "General Dialogue"}, {"title": "Alexandre Gulino", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Independent Asset Manager (IAM)", "country": "Switzerland", "product": "Contacted"}, {"title": "Alpha Leonis Partners AG", "owner": "Roman Kälin", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "Alpinum Investment Management AG", "owner": "Roman Kälin", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "ALSKA PK / Prevanto", "owner": "Roman Kälin", "value": 5.0, "stage": "In Dialogue", "acctType": "Insti-Pension", "country": "Switzerland", "product": "NIO I Co-Invest I"}, {"title": "Alvier Asset Management AG", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Independent Asset Manager (IAM)", "country": "Liechtenstein", "product": "General Dialogue"}, {"title": "AM Alpha (Lemke auch BVV Advisory!)", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Meeting Held", "acctType": "Advisor & Consultants", "country": "Germany", "product": "NREP I NSF VI"}, {"title": "Amadeus Capital SA", "owner": "Christoph Kruecken", "value": 3.0, "stage": "In Dialogue", "acctType": "Independent Asset Manager (IAM)", "country": "Switzerland", "product": "General Dialogue"}, {"title": "Amana Family Office", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Meeting Held", "acctType": "Multi Family Office", "country": "Switzerland", "product": "NIO I NGD VI"}, {"title": "Arxada AG", "owner": "Christoph Kruecken", "value": 5.0, "stage": "In Dialogue", "acctType": "Insti-Pension", "country": "Switzerland", "product": "NIO I NGD VI"}, {"title": "Astraia Family Office", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Meeting Held", "acctType": "Multi Family Office", "country": "Switzerland", "product": "General Dialogue"}, {"title": "Aurea Global Investments", "owner": "Christoph Kruecken", "value": 3.0, "stage": "In Dialogue", "acctType": "Multi Family Office", "country": "Switzerland", "product": "NIO I NGD VI"}, {"title": "AV Private Equity GmbH & Co. KG", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Meeting Held", "acctType": "Single Family Office", "country": "Germany", "product": "NREP I NSF VI"}, {"title": "Becken Holding GmbH deal", "owner": "Christoph Kruecken", "value": 5.0, "stage": "Meeting Held", "acctType": "Independent Asset Manager (IAM)", "country": "Germany", "product": "NREP I NSF VI"}, {"title": "Belvedere Asset Management", "owner": "Christoph Kruecken", "value": 3.0, "stage": "In Dialogue", "acctType": "Multi Family Office", "country": "Switzerland", "product": "General Dialogue"}, {"title": "Bitburger Holding", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Priority Investors", "acctType": "Single Family Office", "country": "Germany", "product": "General Dialogue"}, {"title": "Blue House Group", "owner": "Christoph Kruecken", "value": 50.0, "stage": "In Dialogue", "acctType": "Multi Family Office", "country": "Switzerland", "product": "NIO I PE II"}, {"title": "Bluecap", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Independent Asset Manager (IAM)", "country": "Switzerland", "product": "Contacted"}, {"title": "Brainvest Wealth Management", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "Cambiata Schweiz AG", "owner": "Roman Kälin", "value": 3.0, "stage": "In Dialogue", "acctType": "Single Family Office", "country": "Switzerland", "product": "NIO I Co-Invest I"}, {"title": "Cape May Capital Advisors", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Germany", "product": "Contacted"}, {"title": "Capella Vermögensverwaltungs GmbH", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Meeting Held", "acctType": "Single Family Office", "country": "Germany", "product": "NIO I Co-Invest I"}, {"title": "Capitell Vermögens-Management AG", "owner": "Christoph Kruecken", "value": 3.0, "stage": "In Dialogue", "acctType": "Multi Family Office", "country": "Germany", "product": "General Dialogue"}, {"title": "Comes Family Office", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Germany", "product": "Contacted"}, {"title": "Constanter", "owner": "Roman Kälin", "value": 3.0, "stage": "Priority Investors", "acctType": "Single Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "Corum Vermögensverwaltung AG", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Meeting Held", "acctType": "Independent Asset Manager (IAM)", "country": "Switzerland", "product": "NIO I Co-Invest I"}, {"title": "Cottonfield FO AG", "owner": "Roman Kälin", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "Crossinvest", "owner": "Roman Kälin", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "DBU Deutsche Bundesstiftung Umwelt", "owner": "Christoph Kruecken", "value": 10.0, "stage": "In Dialogue", "acctType": "Foundation", "country": "Germany", "product": "CIP I CI VI"}, {"title": "Dimitris Demetriou", "owner": "Christoph Kruecken", "value": 1.5, "stage": "Onboarding", "acctType": "Private (HNW)", "country": "Switzerland", "product": "NIO I NGD VI"}, {"title": "Dominicé", "owner": "Roman Kälin", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "DR. HELLERICH & CO GmbH", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Germany", "product": "Contacted"}, {"title": "Earl Capital", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Independent Asset Manager (IAM)", "country": "Switzerland", "product": "Contacted"}, {"title": "Einhorn Verwaltungsgesellschaft mbH", "owner": "Christoph Kruecken", "value": 1.0, "stage": "In Dialogue", "acctType": "Single Family Office", "country": "Germany", "product": "General Dialogue"}, {"title": "EMC Gestion de Fortune", "owner": "Roman Kälin", "value": 3.0, "stage": "Priority Investors", "acctType": "Independent Asset Manager (IAM)", "country": "Switzerland", "product": "Contacted"}, {"title": "Family Office der Frankfurter Bankgesellschaft AG", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Germany", "product": "CIP I CI VI"}, {"title": "FINVIA Family Office GmbH", "owner": "Christoph Kruecken", "value": 3.0, "stage": "In Dialogue", "acctType": "Multi Family Office", "country": "Germany", "product": "NIO I Co-Invest I"}, {"title": "FO Trust GmbH", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Onboarding", "acctType": "Multi Family Office", "country": "Germany", "product": "NIO I NGD VI"}, {"title": "FOS Associates", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Advisor & Consultants", "country": "Switzerland", "product": "Contacted"}, {"title": "Frame Asset Management", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Independent Asset Manager (IAM)", "country": "Switzerland", "product": "Contacted"}, {"title": "Galencia Pensionskasse", "owner": "Christoph Kruecken", "value": 5.0, "stage": "Priority Investors", "acctType": "Insti-Pension", "country": "Switzerland", "product": "CIP I CI VI"}, {"title": "Global Gate Asset Management", "owner": "Roman Kälin", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "Gryth Group AG", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Meeting Held", "acctType": "Single Family Office", "country": "Switzerland", "product": "NIO I Co-Invest I"}, {"title": "GVO Advisory Management", "owner": "Christoph Kruecken", "value": 1.0, "stage": "In Dialogue", "acctType": "Single Family Office", "country": "Switzerland", "product": "NIO I Co-Invest I"}, {"title": "Hamburger Pensionsverwaltung (HAPEV)", "owner": "Christoph Kruecken", "value": 5.0, "stage": "Meeting Held", "acctType": "Insti-Pension", "country": "Germany", "product": "CIP I CI VI"}, {"title": "Hanitax GmbH", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Meeting Held", "acctType": "Single Family Office", "country": "Germany", "product": "NIO I NGD VI"}, {"title": "HBK Investments Advisory", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "Helaba Invest Kapitalanlagegesellschaft mbH deal", "owner": "Christoph Kruecken", "value": 5.0, "stage": "Meeting Held", "acctType": "Wealth Manager", "country": "Germany", "product": "NREP I NSF VI"}, {"title": "Helbling und Partner", "owner": "Roman Kälin", "value": 3.0, "stage": "Meeting Held", "acctType": "Multi Family Office", "country": "Switzerland", "product": "NIO I Co-Invest I"}, {"title": "Helvetia Insurance Switzerland deal", "owner": "Roman Kälin", "value": 10.0, "stage": "In Dialogue", "acctType": "Insti-Insurance", "country": "Switzerland", "product": "NREP I NSF VI"}, {"title": "Henkel Family Office", "owner": "Christoph Kruecken", "value": 1.0, "stage": "In Dialogue", "acctType": "Single Family Office", "country": "Germany", "product": "General Dialogue"}, {"title": "Honestus Family Office AG", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "Hottinger", "owner": "Christoph Kruecken", "value": 3.0, "stage": "In Dialogue", "acctType": "Multi Family Office", "country": "Switzerland", "product": "NIO I Co-Invest I"}, {"title": "HRK Lunis Vermögensmanagement deal", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Meeting Held", "acctType": "Independent Asset Manager (IAM)", "country": "Germany", "product": "CIP I CI VI"}, {"title": "iAccess Partners", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Meeting Held", "acctType": "Advisor & Consultants", "country": "Switzerland", "product": "NIO I PE II"}, {"title": "Investas AG", "owner": "Christoph Kruecken", "value": 3.0, "stage": "In Dialogue", "acctType": "Independent Asset Manager (IAM)", "country": "Switzerland", "product": "Contacted"}, {"title": "Jakober Partner", "owner": "Roman Kälin", "value": 1.0, "stage": "Priority Investors", "acctType": "Wealth Manager", "country": "Switzerland", "product": "Contacted"}, {"title": "Juno Family Office lead", "owner": "Christoph Kruecken", "value": 1.0, "stage": "In Dialogue", "acctType": "Single Family Office", "country": "Germany", "product": "Contacted"}, {"title": "Kontora Family Office", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Germany", "product": "CIP I CI VI"}, {"title": "Lakefield Partners AG", "owner": "Roman Kälin", "value": 0.5, "stage": "Meeting Held", "acctType": "Multi Family Office", "country": "Switzerland", "product": "NIO I PE II"}, {"title": "Lars Hagedorn", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Priority Investors", "acctType": "Single Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "Laureus AG Privat Finanz", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Wealth Manager", "country": "Germany", "product": "Contacted"}, {"title": "LeoVest Partners AG", "owner": "Roman Kälin", "value": 3.0, "stage": "Meeting Held", "acctType": "Multi Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "LINVO AG", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "Marcard Stein & Co.", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Due Diligence Early Stage", "acctType": "Bank Private", "country": "Germany", "product": "NREP I NSF VI"}, {"title": "Martagon Family Office", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Meeting Held", "acctType": "Single Family Office", "country": "Germany", "product": "CIP I CI VI"}, {"title": "Martagon Family Office", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Meeting Held", "acctType": "Single Family Office", "country": "Germany", "product": "CIP I CI VI"}, {"title": "Maryland GmbH", "owner": "Christoph Kruecken", "value": 1.0, "stage": "In Dialogue", "acctType": "Single Family Office", "country": "Germany", "product": "General Dialogue"}, {"title": "maxingvest GmbH & Co. KGaA", "owner": "Christoph Kruecken", "value": 1.0, "stage": "In Dialogue", "acctType": "Single Family Office", "country": "Germany", "product": "General Dialogue"}, {"title": "MEEDER & SEIFER GmbH", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Germany", "product": "Contacted"}, {"title": "Münster Stegmaier Rombach Family Office GmbH", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Priority Investors", "acctType": "Single Family Office", "country": "Germany", "product": "Contacted"}, {"title": "Nautilus Wealth Management AG", "owner": "Christoph Kruecken", "value": 2.0, "stage": "Due Diligence Late Stage", "acctType": "Multi Family Office", "country": "Liechtenstein", "product": "General Dialogue"}, {"title": "Novethos Family Office", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Meeting Held", "acctType": "Multi Family Office", "country": "Germany", "product": "CIP I CI VI"}, {"title": "OHM CAPITAL", "owner": "Christoph Kruecken", "value": 3.0, "stage": "In Dialogue", "acctType": "Multi Family Office", "country": "Germany", "product": "NIO I NGD VI"}, {"title": "Panther Bay Capital", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Priority Investors", "acctType": "Single Family Office", "country": "Germany", "product": "Contacted"}, {"title": "Parkview Invest AG", "owner": "Roman Kälin", "value": 1.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "Pensionskasse der Technischen Verbände SIA STV BSA FSAI USIC", "owner": "Roman Kälin", "value": 3.0, "stage": "Priority Investors", "acctType": "Insti-Pension", "country": "Switzerland", "product": "Contacted"}, {"title": "Pensionskasse Manor", "owner": "Christoph Kruecken", "value": 5.0, "stage": "In Dialogue", "acctType": "Insti-Pension", "country": "Switzerland", "product": "NIO I NGD VI"}, {"title": "Pensionskasse Stadt Luzern", "owner": "Roman Kälin", "value": 5.0, "stage": "Priority Investors", "acctType": "Insti-Pension", "country": "Switzerland", "product": "Contacted"}, {"title": "Prime Partners", "owner": "Christoph Kruecken", "value": 10.0, "stage": "Due Diligence Late Stage", "acctType": "Independent Asset Manager (IAM)", "country": "Switzerland", "product": "NIO I NGD VI"}, {"title": "Primwest SA", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Priority Investors", "acctType": "Single Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "Profunda Verwaltungs-GmbH", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Priority Investors", "acctType": "Single Family Office", "country": "Germany", "product": "Contacted"}, {"title": "Promea Pensionskasse", "owner": "Roman Kälin", "value": 5.0, "stage": "Priority Investors", "acctType": "Insti-Pension", "country": "Switzerland", "product": "NIO I PE II"}, {"title": "Prospera-Invest Vermögensverwaltung", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Independent Asset Manager (IAM)", "country": "Switzerland", "product": "Contacted"}, {"title": "Punica Invest", "owner": "Christoph Kruecken", "value": 5.0, "stage": "Meeting Held", "acctType": "Independent Asset Manager (IAM)", "country": "Germany", "product": "NIO I NGD VI"}, {"title": "Remaco Asset Management AG", "owner": "Roman Kälin", "value": 3.0, "stage": "Priority Investors", "acctType": "Independent Asset Manager (IAM)", "country": "Switzerland", "product": "Contacted"}, {"title": "RIANTA Capital Zurich AG", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Priority Investors", "acctType": "Single Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "Rodenstock Gesellschaft für Familienunternehmen", "owner": "Christoph Kruecken", "value": 1.0, "stage": "In Dialogue", "acctType": "Single Family Office", "country": "Germany", "product": "General Dialogue"}, {"title": "Rolem Invest AG", "owner": "Roman Kälin", "value": 0.5, "stage": "Due Diligence Early Stage", "acctType": "Single Family Office", "country": "Switzerland", "product": "NREP I NSF VI"}, {"title": "Rothorn Capital", "owner": "Roman Kälin", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "SAYANO Family Office", "owner": "Roman Kälin", "value": 1.0, "stage": "Priority Investors", "acctType": "Single Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "Schindler Pensionskasse", "owner": "Roman Kälin", "value": 5.0, "stage": "Priority Investors", "acctType": "Insti-Pension", "country": "Switzerland", "product": "Contacted"}, {"title": "Serenis Family Capital", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "Solarkit", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Meeting Held", "acctType": "Private (HNW)", "country": "Hungary", "product": "NIO I PE II"}, {"title": "Solvia Vermögensverwaltung", "owner": "Christoph Kruecken", "value": 1.0, "stage": "In Dialogue", "acctType": "Single Family Office", "country": "Germany", "product": "CIP I CI VI"}, {"title": "Solvia Vermögensverwaltung", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Meeting Held", "acctType": "Single Family Office", "country": "Germany", "product": "CIP I CI VI"}, {"title": "SONNTAG FAMILY OFFICE GMBH", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Germany", "product": "Contacted"}, {"title": "Spectrum Value Management", "owner": "Roman Kälin", "value": 3.0, "stage": "Priority Investors", "acctType": "Single Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "SWIX Family Office", "owner": "Roman Kälin", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Switzerland", "product": "Contacted"}, {"title": "TASK Wealth Management", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Independent Asset Manager (IAM)", "country": "Switzerland", "product": "Contacted"}, {"title": "Vermögenskultur AG", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Germany", "product": "Contacted"}, {"title": "Veska - Co-Investment Fund", "owner": "Roman Kälin", "value": 10.0, "stage": "Meeting Held", "acctType": "Insti-Pension", "country": "Switzerland", "product": "NIO I Co-Invest I"}, {"title": "Veska - Private Equity II", "owner": "Roman Kälin", "value": 10.0, "stage": "Meeting Held", "acctType": "Insti-Pension", "country": "Switzerland", "product": "NIO I PE II"}, {"title": "Vintage Shipping & Trading", "owner": "Christoph Kruecken", "value": 10.0, "stage": "Due Diligence Late Stage", "acctType": "Insti-Pension", "country": "Switzerland", "product": "Adams Street I GSF VIII"}, {"title": "WAAM Solutions", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Independent Asset Manager (IAM)", "country": "Switzerland", "product": "Contacted"}, {"title": "WEGA Invest GmbH", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Meeting Held", "acctType": "Single Family Office", "country": "Germany", "product": "CIP I CI VI"}, {"title": "WGD Management GmbH (Dyckerhoff) deal", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Meeting Held", "acctType": "Single Family Office", "country": "Germany", "product": "NREP I NSF VI"}, {"title": "WGV Württembergische Gemeinde-Versicherung SFF I", "owner": "Christoph Kruecken", "value": 10.0, "stage": "In Dialogue", "acctType": "Insti-Insurance", "country": "Germany", "product": "Adams Street I GSF VIII"}, {"title": "Wirtgen Invest Holding", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Priority Investors", "acctType": "Single Family Office", "country": "Germany", "product": "Contacted"}, {"title": "WM Capital", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Independent Asset Manager (IAM)", "country": "Switzerland", "product": "Contacted"}, {"title": "WSH Family Office", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Priority Investors", "acctType": "Multi Family Office", "country": "Germany", "product": "Contacted"}, {"title": "Zinke MFO deal", "owner": "Christoph Kruecken", "value": 0.2, "stage": "In Dialogue", "acctType": "Single Family Office", "country": "Germany", "product": "NIO I NGD VI"}, {"title": "Metis Treuhand GmbH", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Due Diligence Early Stage", "acctType": "Multi Family Office", "country": "Germany", "product": "CIP I CI VI"}, {"title": "Wortmann Family Office", "owner": "Christoph Kruecken", "value": 3.0, "stage": "Meeting Held", "acctType": "Single Family Office", "country": "Germany", "product": "CIP I CI VI"}, {"title": "FOCAM AG", "owner": "Christoph Kruecken", "value": 1.0, "stage": "Priority Investors", "acctType": "Single Family Office", "country": "Germany", "product": "NIO I NGD VI"}];
 
 const STAGE_CHIPS={"Priority Investors":{bg:'#e2eed0',color:'#375623'},"In Dialogue":{bg:'#cddde7',color:'#243f51'},"Meeting Held":{bg:'#f0dfc4',color:'#7b3f00'},"Due Diligence Early Stage":{bg:'#f5d5c0',color:'#a0522d'},"Due Diligence Late Stage":{bg:'#cddde7',color:'#2e5369'},"Onboarding":{bg:'#e2eed0',color:'#4e7a30'}};
+
+const PROD_ACCT={
+  "Contacted":{"Multi Family Office":67,"Independent Asset Manager (IAM)":33,"Single Family Office":15,"Insti-Pension":13,"Wealth Manager":4,"Advisor & Consultants":3},
+  "NIO I NGI II":{"Insti-Pension":100},
+  "NIO I PE II":{"Multi Family Office":50.5,"Insti-Pension":15,"Independent Asset Manager (IAM)":10,"Advisor & Consultants":3,"Private (HNW)":1},
+  "NIO I NGD VI":{"Independent Asset Manager (IAM)":15,"Multi Family Office":12,"Insti-Pension":10,"Single Family Office":1.7,"Private (HNW)":1.5},
+  "Adams Street I GSF VIII":{"Insti-Insurance":10,"Insti-Pension":10,"Multi Family Office":2},
+  "CIP I CI VI":{"Foundation":10,"Multi Family Office":16,"Insti-Pension":10,"Single Family Office":5},
+  "NIO I Co-Invest I":{"Insti-Pension":16,"Multi Family Office":9,"Single Family Office":3},
+  "NREP I NSF VI":{"Insti-Insurance":10,"Independent Asset Manager (IAM)":6,"Wealth Manager":5,"Bank Private":3,"Advisor & Consultants":3,"Single Family Office":1.5,"Multi Family Office":1,"Insti-Pension":1},
+  "General Dialogue":{"Multi Family Office":13,"Independent Asset Manager (IAM)":6,"Single Family Office":5,"Foundation":2}
+};
+
+const REP_ACCT_FULL={
+  "Christoph Kruecken":{"Multi Family Office":128,"Independent Asset Manager (IAM)":57,"Insti-Pension":30,"Insti-Insurance":10,"Single Family Office":25.2,"Foundation":10,"Advisor & Consultants":9,"Wealth Manager":8,"Bank Private":3,"Private (HNW)":2.5},
+  "Roman Kälin":{"Insti-Pension":43,"Multi Family Office":31.5,"Single Family Office":10.5,"Insti-Insurance":10,"Independent Asset Manager (IAM)":6,"Wealth Manager":1}
+};
+const REP_ACCT_QTD={
+  "Christoph Kruecken":{"Multi Family Office":76,"Independent Asset Manager (IAM)":36,"Insti-Pension":18,"Single Family Office":10,"Insti-Insurance":6,"Foundation":6,"Advisor & Consultants":5,"Wealth Manager":5,"Bank Private":2},
+  "Roman Kälin":{"Insti-Pension":43.5,"Multi Family Office":9.5,"Single Family Office":3.2,"Insti-Insurance":3,"Independent Asset Manager (IAM)":1.8,"Wealth Manager":0.5}
+};
 
 const fmt=v=>`€${(+v).toFixed(1)}M`;
 const fmtS=v=>v>0?`€${(+v).toFixed(0)}M`:'—';
@@ -367,7 +408,6 @@ function updateKPIs(stages,total,qtd){
   animCount(document.getElementById('kpi-qtd'),qtd);
   animCount(document.getElementById('kpi-dd'),stages[3]+stages[4]);
   animCount(document.getElementById('kpi-onboard'),stages[5]);
-  setTimeout(()=>{const pct=(NNM_WON_TOTAL/NNM_TARGET_TOTAL*100).toFixed(2);document.getElementById('nnm-fill').style.width=pct+'%';},300);
 }
 function buildFunnel(stages){
   const total=stages.reduce((a,b)=>a+b,0),max=Math.max(...stages);
@@ -423,36 +463,57 @@ function makeHGroupedBar(id,labels,ds1,ds2){
             y:{grid:{display:false},ticks:{font:{family:"'Inter'",size:11},color:'#18180f'}}}
   }});
 }
-function makeDoughnut(id,labels,values){
+
+// ── Doughnut with click drill-down ─────────────────────────────────────────
+function makeDoughnut(id,labels,values,drillData,drillPanelId,drillTitle){
   kill(id);
-  charts[id]=new Chart(document.getElementById(id),{type:'doughnut',data:{labels,datasets:[{data:values,backgroundColor:PAL,borderWidth:3,borderColor:'#fff',hoverOffset:8}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',animation:{animateRotate:true,duration:900},
-      plugins:{legend:{display:true,position:'right',labels:{font:{family:"'Inter'",size:11},color:'#18180f',boxWidth:10,padding:10,
-        generateLabels:c=>c.data.labels.map((l,i)=>({text:`${l}  ${fmt(c.data.datasets[0].data[i])}`,fillStyle:PAL[i%PAL.length],hidden:false,index:i,lineWidth:0}))}},
-        tooltip:{...TIP,callbacks:{label:c=>` ${fmt(c.parsed)}`}}}}
-  });
-}
-function buildNNM(){
-  kill('nnmChart');
-  charts['nnmChart']=new Chart(document.getElementById('nnmChart'),{type:'bar',
-    data:{labels:NNM.quarters,datasets:[
-      {label:'Target (€M)',data:NNM.targets,backgroundColor:'rgba(200,129,58,0.2)',borderColor:'#c8813a',borderWidth:2,borderRadius:6,borderSkipped:false},
-      {label:'Won (€M)',data:NNM.won.map(v=>v||0),backgroundColor:'#375623',borderRadius:6,borderSkipped:false}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:true,position:'top',labels:{font:{family:"'Inter'",size:11},color:'#18180f',boxWidth:12,padding:16}},
-        tooltip:{...TIP,callbacks:{label:c=>c.parsed.y>0?` ${c.dataset.label}: €${c.parsed.y}M`:null,filter:i=>i.parsed.y>0}}},
-      scales:{x:{grid:{display:false},ticks:{font:{family:"'Inter'",size:11},color:'#18180f'}},
-              y:{grid:{color:'#e4e1d8'},border:{display:false},ticks:{font:{family:"'Inter'",size:11},color:'#8c8a82',callback:v=>`€${v}M`}}}
+  let activeIdx=null;
+  charts[id]=new Chart(document.getElementById(id),{
+    type:'doughnut',
+    data:{labels,datasets:[{data:values,backgroundColor:PAL,borderWidth:3,borderColor:'#fff',hoverOffset:8}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'60%',
+      animation:{animateRotate:true,duration:900},
+      onClick:(evt,elements)=>{
+        const panel=document.getElementById(drillPanelId);
+        if(!elements.length){panel.classList.remove('open');activeIdx=null;return;}
+        const i=elements[0].index;
+        const label=labels[i];
+        if(activeIdx===i){panel.classList.remove('open');activeIdx=null;return;}
+        activeIdx=i;
+        const data=drillData[label]||{};
+        const keys=Object.keys(data).sort((a,b)=>data[b]-data[a]);
+        const total=Object.values(data).reduce((s,v)=>s+v,0);
+        const max=Math.max(...Object.values(data),1);
+        const color=PAL[i%PAL.length];
+        panel.innerHTML=`<div class="dough-drill-title">
+          <span>${drillTitle} · <strong style="color:${color}">${label}</strong> · ${fmt(values[i])}</span>
+          <button onclick="closeDrill('${drillPanelId}')">✕</button>
+        </div>`+
+          keys.map(k=>{
+            const v=data[k],bar=(v/max*100).toFixed(1),pct=(v/total*100).toFixed(0);
+            return `<div class="dough-drill-row">
+              <div>
+                <div style="font-size:.74rem;font-weight:500;margin-bottom:3px">${k}</div>
+                <div class="dough-bar-track"><div class="dough-bar-fill" style="width:${bar}%;background:${color}"></div></div>
+              </div>
+              <span style="font-size:.74rem;font-family:var(--fd);text-align:right">${fmt(v)}</span>
+              <span style="font-size:.65rem;color:var(--muted);text-align:right">${pct}%</span>
+            </div>`;
+          }).join('');
+        panel.classList.add('open');
+        panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+      },
+      plugins:{
+        legend:{display:true,position:'right',labels:{font:{family:"'Inter'",size:11},color:'#18180f',boxWidth:10,padding:10,
+          generateLabels:c=>c.data.labels.map((l,i)=>({text:`${l}  ${fmt(c.data.datasets[0].data[i])}`,fillStyle:PAL[i%PAL.length],hidden:false,index:i,lineWidth:0}))}},
+        tooltip:{...TIP,callbacks:{label:c=>` ${fmt(c.parsed)}`}}
+      }
     }
   });
-  document.getElementById('nnm-table').innerHTML=NNM.quarters.map((q,i)=>`
-    <div style="display:grid;grid-template-columns:1fr 80px 80px;gap:6px;padding:9px 0;border-bottom:1px solid var(--border);align-items:center">
-      <span style="font-size:.79rem;font-weight:500">${q}</span>
-      <span style="font-family:var(--fd);font-size:.9rem;text-align:right;color:var(--gold);font-weight:600">€${NNM.targets[i]}M</span>
-      <span style="font-size:.79rem;text-align:right;color:${NNM.won[i]?'var(--green)':'var(--muted)'}">${NNM.won[i]!=null?'€'+NNM.won[i]+'M':'—'}</span>
-    </div>`).join('');
 }
+function closeDrill(panelId){document.getElementById(panelId).classList.remove('open');}
+
 function buildHeatmap(){
   const countries=Object.keys(COUNTRY_ACCT);
   const accts=ALL_ACCT_TYPES.filter(a=>countries.some(c=>COUNTRY_ACCT[c][a]>0));
@@ -510,27 +571,6 @@ function renderDeals(){
   document.getElementById('deal-pages').innerHTML=pg;
 }
 function goPage(p){dealPage=p;renderDeals();}
-
-const REP_ACCT_FULL={
-  "Christoph Kruecken":{"Multi Family Office":144,"Independent Asset Manager (IAM)":64,"Insti-Pension":32,"Insti-Insurance":35,"Single Family Office":20.2,"Foundation":13,"Advisor & Consultants":9,"Wealth Manager":8,"Bank Private":3,"Private (HNW)":1},
-  "Roman Kälin":{"Insti-Pension":143,"Multi Family Office":31.5,"Single Family Office":10.5,"Insti-Insurance":10,"Independent Asset Manager (IAM)":6,"Wealth Manager":1}
-};
-const REP_ACCT_QTD={
-  "Christoph Kruecken":{"Multi Family Office":76,"Independent Asset Manager (IAM)":36,"Insti-Pension":18,"Single Family Office":10,"Insti-Insurance":6,"Foundation":6,"Advisor & Consultants":5,"Wealth Manager":5,"Bank Private":2},
-  "Roman Kälin":{"Insti-Pension":43.5,"Multi Family Office":9.5,"Single Family Office":3.2,"Insti-Insurance":3,"Independent Asset Manager (IAM)":1.8,"Wealth Manager":0.5}
-};
-
-const PROD_ACCT={
-  "Contacted":{"Multi Family Office":67,"Independent Asset Manager (IAM)":33,"Single Family Office":15,"Insti-Pension":13,"Wealth Manager":4,"Advisor & Consultants":3},
-  "NIO I NGI II":{"Insti-Pension":100},
-  "NIO I PE II":{"Multi Family Office":50.5,"Insti-Pension":15,"Independent Asset Manager (IAM)":10,"Advisor & Consultants":3,"Private (HNW)":1},
-  "NIO I NGD VI":{"Independent Asset Manager (IAM)":15,"Multi Family Office":12,"Insti-Pension":10,"Single Family Office":0.2},
-  "Adams Street I GSF VIII":{"Insti-Insurance":15,"Insti-Pension":10,"Foundation":3,"Single Family Office":3,"Multi Family Office":2},
-  "CIP I CI VI":{"Foundation":10,"Multi Family Office":12,"Insti-Pension":10},
-  "NIO I Co-Invest I":{"Insti-Pension":16,"Multi Family Office":9,"Single Family Office":6},
-  "NREP I NSF VI":{"Insti-Insurance":10,"Independent Asset Manager (IAM)":6,"Wealth Manager":5,"Bank Private":3,"Advisor & Consultants":3,"Single Family Office":1.5,"Multi Family Office":1,"Insti-Pension":1},
-  "General Dialogue":{"Multi Family Office":13,"Independent Asset Manager (IAM)":6,"Single Family Office":5}
-};
 
 function buildHtmlBars(containerId,items,onClickFn){
   const maxFull=Math.max(...items.map(i=>i.full),1);
@@ -626,7 +666,88 @@ function toggleProdDrill(idx){
   panel.classList.add('open');
 }
 
+
+// ── Pipeline Movement Data ─────────────────────────────────────────────────
+const MOVEMENTS=[
+  {title:"Marcard Stein & Co.",owner:"Christoph Kruecken",value:3.0,from:"Meeting Held",to:"Due Diligence Early Stage",acctType:"Bank Private",country:"Germany",product:"NREP I NSF VI",type:"progression"},
+  {title:"Metis Treuhand GmbH",owner:"Christoph Kruecken",value:3.0,from:"Meeting Held",to:"Due Diligence Early Stage",acctType:"Multi Family Office",country:"Germany",product:"CIP I CI VI",type:"progression"},
+];
+
+function buildMovement(){
+  const progressions=MOVEMENTS.filter(m=>m.type==='progression');
+  const regressions=MOVEMENTS.filter(m=>m.type==='regression');
+  const newDeals=MOVEMENTS.filter(m=>m.type==='new');
+
+  const stageOrder={"Priority Investors":0,"In Dialogue":1,"Meeting Held":2,"Due Diligence Early Stage":3,"Due Diligence Late Stage":4,"Onboarding":5};
+
+  // Summary bar
+  const totalMoved=MOVEMENTS.reduce((s,m)=>s+m.value,0);
+  const summaryHtml=`
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
+      <div style="background:var(--green-lt);border:1px solid var(--dg5);border-radius:8px;padding:16px 20px;display:flex;align-items:center;gap:14px">
+        <div style="font-size:1.6rem;color:var(--green)">↑</div>
+        <div>
+          <div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;color:var(--green2);margin-bottom:4px">Progressions</div>
+          <div style="font-family:var(--fd);font-size:1.3rem;color:var(--green);font-weight:600">${progressions.length} deal${progressions.length!==1?'s':''}</div>
+          <div style="font-size:.7rem;color:var(--muted);margin-top:2px">${fmt(progressions.reduce((s,m)=>s+m.value,0))} advanced</div>
+        </div>
+      </div>
+      <div style="background:#fff8f0;border:1px solid #e8d5b8;border-radius:8px;padding:16px 20px;display:flex;align-items:center;gap:14px">
+        <div style="font-size:1.6rem;color:var(--gold)">★</div>
+        <div>
+          <div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;color:var(--gold);margin-bottom:4px">New to DD</div>
+          <div style="font-family:var(--fd);font-size:1.3rem;color:var(--gold);font-weight:600">2 deals</div>
+          <div style="font-size:.7rem;color:var(--muted);margin-top:2px">€6.0M entering diligence</div>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px 20px;display:flex;align-items:center;gap:14px">
+        <div style="font-size:1.6rem;color:var(--muted)">Σ</div>
+        <div>
+          <div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:4px">Total Value Moved</div>
+          <div style="font-family:var(--fd);font-size:1.3rem;color:var(--text);font-weight:600">${fmt(totalMoved)}</div>
+          <div style="font-size:.7rem;color:var(--muted);margin-top:2px">across ${MOVEMENTS.length} deal movement${MOVEMENTS.length!==1?'s':''}</div>
+        </div>
+      </div>
+    </div>`;
+
+  // Movement table header
+  const tableHdr=`
+    <div style="display:grid;grid-template-columns:1fr 90px 180px 32px 180px 90px 100px;gap:10px;padding:8px 12px;border-bottom:2px solid var(--border);margin-bottom:2px">
+      <span style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600">Deal</span>
+      <span style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600;text-align:right">Value</span>
+      <span style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600;text-align:center">From</span>
+      <span></span>
+      <span style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600;text-align:center">To</span>
+      <span style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600">Account</span>
+      <span style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600">Owner</span>
+    </div>`;
+
+  const rows=MOVEMENTS.map(m=>{
+    const fromChip=STAGE_CHIPS[m.from]||{bg:'#eee',color:'#333'};
+    const toChip=STAGE_CHIPS[m.to]||{bg:'#eee',color:'#333'};
+    const dirColor=m.type==='progression'?'var(--green)':m.type==='regression'?'var(--rust)':'var(--gold)';
+    const dirArrow=m.type==='progression'?'→':m.type==='regression'?'↓':'★';
+    const fromLabel=m.from.replace('Due Diligence ','DD ');
+    const toLabel=m.to.replace('Due Diligence ','DD ');
+    return `<div style="display:grid;grid-template-columns:1fr 90px 180px 32px 180px 90px 100px;gap:10px;padding:11px 12px;border-bottom:1px solid var(--border);align-items:center;border-radius:6px;transition:background .15s" onmouseenter="this.style.background='var(--surface2)'" onmouseleave="this.style.background=''">
+      <div>
+        <div style="font-size:.8rem;font-weight:600;color:var(--text)">${m.title}</div>
+        <div style="font-size:.67rem;color:var(--muted);margin-top:2px">${m.product} · ${m.country}</div>
+      </div>
+      <div style="font-family:var(--fd);font-size:.9rem;font-weight:600;text-align:right;color:var(--text)">${fmt(m.value)}</div>
+      <div style="text-align:center"><span class="stage-chip" style="background:${fromChip.bg};color:${fromChip.color}">${fromLabel}</span></div>
+      <div style="text-align:center;font-size:1.1rem;font-weight:700;color:${dirColor}">${dirArrow}</div>
+      <div style="text-align:center"><span class="stage-chip" style="background:${toChip.bg};color:${toChip.color}">${toLabel}</span></div>
+      <div style="font-size:.74rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.acctType}</div>
+      <div style="font-size:.74rem;color:var(--muted)">${m.owner.split(' ')[0]}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('movement-wrap').innerHTML=summaryHtml+tableHdr+rows;
+}
+
 function render(rep){
+  buildMovement();
   const d=rep==='All'?DB.all:{...DB.all,...DB.byRep[rep]};
   updateKPIs(d.stages,d.total,d.qtd);
   buildFunnel(d.stages);
@@ -634,10 +755,14 @@ function render(rep){
   buildRepRows();
   buildProdRows();
   makeHGroupedBar('qtdChart',STAGES.map(s=>s.replace('Due Diligence ','DD ').replace('Priority Investors','Priority Inv.')),d.stages,d.stagesQTD);
-  const acctK=Object.keys(DB.all.acct);makeDoughnut('acctChart',acctK,acctK.map(k=>DB.all.acct[k]));
-  const cntK=Object.keys(DB.all.country);makeDoughnut('countryChart',cntK,cntK.map(k=>DB.all.country[k]));
+
+  const acctK=Object.keys(DB.all.acct);
+  makeDoughnut('acctChart',acctK,acctK.map(k=>DB.all.acct[k]),ACCT_BY_STAGE,'acct-drill','Stage breakdown');
+
+  const cntK=Object.keys(DB.all.country);
+  makeDoughnut('countryChart',cntK,cntK.map(k=>DB.all.country[k]),COUNTRY_ACCT,'country-drill','Account type mix');
+
   buildHeatmap();
-  buildNNM();
   filterDeals();
 }
 function setRep(rep){
@@ -645,7 +770,7 @@ function setRep(rep){
   document.querySelectorAll('.pill').forEach(b=>b.classList.toggle('active',b.textContent.trim()===rep||(rep==='All'&&b.textContent.trim()==='All Sales')));
   render(rep);
 }
-document.getElementById('datestamp').textContent='9 April 2026';
+document.getElementById('datestamp').textContent='24 April 2026';
 render('All');
 </script>
 </body>
